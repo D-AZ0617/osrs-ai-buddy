@@ -1,0 +1,25 @@
+.gradle
+build
+.idea/
+.project
+.settings/
+.classpath
+nbactions.xml
+nb-configuration.xml
+nbproject/
+*.class
+*.iml
+out/
+bin/
+.vscode/
+.DS_Store
+# osrs-ai-chat
+*.tmp
+
+# Local credentials and user data
+.runelite/
+chatgpt-auth.json
+chatgpt-host.txt
+credentials.properties
+chats.json
+*.log
