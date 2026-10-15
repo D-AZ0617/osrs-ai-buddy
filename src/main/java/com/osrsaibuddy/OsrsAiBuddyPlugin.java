@@ -153,6 +153,12 @@ public class OsrsAiBuddyPlugin extends Plugin
     private WomClient wom;
 
     @Subscribe
+    public void onGameTick(net.runelite.api.events.GameTick event)
+    {
+        if (accountProgress != null && config.aiRequests() && config.shareProgress()) { accountProgress.observeCollectionPage(); }
+    }
+
+    @Subscribe
     public void onScriptPreFired(net.runelite.api.events.ScriptPreFired event)
     {
         if (accountProgress == null || !config.aiRequests() || !config.shareProgress() || event.getScriptId() != 4100) { return; }

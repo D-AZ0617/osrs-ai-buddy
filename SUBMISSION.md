@@ -7,7 +7,7 @@ Configuration and storage namespace: osrs-ai-buddy
 Packaging: standard (no extra production dependencies)
 Icon: 48x48 root icon.png, 32x32 sidebar resource, PNG with transparency
 Bytecode target: Java 11
-Local verification: 348 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
+Local verification: 352 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
 
 The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and memory-only token behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
 
@@ -19,4 +19,6 @@ Review-sensitive points: temporary loopback HTTP callback, JWT signature verific
 
 The Plugin Hub recommends contributing to existing plugins when appropriate. This separate plugin focuses specifically on ChatGPT plan sign-in and intentionally excludes upstream's API-key and alternate-provider configuration. Its relationship to upstream is disclosed, not hidden by the new branding.
 
-WOM/account-context expansion: verified 348 tests with no failures, errors or skipped tests. Added tests cover opt-in gates before reads and delivery, account changes, in-flight and queued WOM cancellation, read-only endpoint encoding, cache isolation, missing/unranked data, redirects, response-size caps, rate cooldown, pagination and partial collection coverage. All network tests use local stand-ins; live WOM behavior and in-game collection coverage still need user testing. Hub submission remains paused.
+WOM/account-context expansion: verified 352 tests with no failures, errors or skipped tests. Added tests cover opt-in gates before reads and delivery, account changes, in-flight and queued WOM cancellation, read-only endpoint encoding, cache isolation, missing/unranked data, redirects, response-size caps, rate cooldown, pagination and partial collection coverage. All network tests use local stand-ins; live WOM behavior and in-game collection coverage still need user testing. Hub submission remains paused.
+
+Collection-page fix: item-level obtained/missing/quantity snapshots are accepted only when visible header totals agree with the complete item grid. Page names and observation timestamps support targeted queries; unvisited coverage is unknown. Another player’s house adventure-log view is excluded. User confirmed the earlier live RuneLite/WOM data tools work in game; this newer page-reader build still needs an in-game check.

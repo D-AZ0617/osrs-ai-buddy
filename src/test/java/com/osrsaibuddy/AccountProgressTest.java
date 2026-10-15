@@ -29,6 +29,7 @@ public class AccountProgressTest
                 case "getWorldType": return EnumSet.noneOf(WorldType.class);
                 case "getItemDefinition": return item;
                 case "getVarpValue": return 100;
+                case "getVarbitValue": return 0;
                 default: return null;
             }
         });

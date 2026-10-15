@@ -53,7 +53,7 @@ final class AccountContextTools implements ChatApi.ToolRunner
         if (progressAllowed.getAsBoolean())
         {
             specs.add(new ChatApi.ToolSpec("get_account_progress",
-                "Read current account progress: overview, skills (XP and boosted levels), quests, combat_achievements, collection_log (partial obtained items), collection_sections, unlocks, currencies. Paginate with offset/limit; search filters names. Unseen collection items are UNKNOWN. Task identifiers are internal names. Diaries, bank, gear and Slayer use their separate tools.",
+                "Read current account progress: overview, skills (XP and boosted levels), quests, combat_achievements, collection_log (obtained/missing items on observed pages; other coverage unknown), collection_sections, unlocks, currencies. Paginate with offset/limit; search filters names. Search collection_log by page or item name to retrieve item-level statuses; paginate all results. Unseen collection items are UNKNOWN. Task identifiers are internal names. Diaries, bank, gear and Slayer use their separate tools.",
                 schema("section", new String[]{"overview", "skills", "quests", "combat_achievements", "collection_log", "collection_sections", "unlocks", "currencies"})));
         }
         if (womAllowed.getAsBoolean())

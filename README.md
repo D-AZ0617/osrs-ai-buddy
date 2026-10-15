@@ -15,7 +15,7 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 - Optionally looks at equipment, inventory and the last bank snapshot captured while sharing was enabled.
 - Adds opt-in Wise Old Man context: latest tracked skills/XP/ranks, boss kills, activities and clues, EHP/EHB, gains, records, achievements and their progress, public groups, competitions and name history.
 - Adds live extended progress: boosted/base levels and XP, every exposed quest state, 399 known combat-achievement flags, 125 collection-section completion flags, 37 prayer/Slayer unlocks, and selected currencies.
-- Passively collects obtained collection-log items the game supplies while sharing is enabled. Coverage remains partial: unseen items are unknown.
+- Passively captures obtained and missing items, quantities and page names from validated collection-log pages you open, plus obtained items the game supplies. Coverage remains partial: unvisited items are unknown.
 - Keeps sharing choices separate and off by default.
 
 ## Connect ChatGPT
@@ -48,7 +48,7 @@ Enable **Share extended progress** for current RuneLite progress and **Share Wis
 
 WOM requires an existing tracked player. Buddy only performs public GET requests; it does not create a profile, submit updates, or enable public tracking. A missing profile or unranked value is unknown, not zero. WOM data may lag behind the live game. Requests are cached for two minutes and limited to one uncached request per 3.1 seconds; additional requests during that interval report that they need to wait. There is no API key or paid service setup.
 
-Collection-log totals and section flags come from game variables. Item details are only those naturally transmitted by the game, including while you open the collection log. Items not observed are never assumed missing. Observations stay in memory and clear on account transitions, disabling sharing, or plugin shutdown. No automatic UI navigation or game scripts are triggered to harvest the log. Internal task identifiers and versioned allowlists may need updating after game changes. Bank contents require opening the bank with item sharing enabled. Private storage, full account history and other unexposed progress are not guaranteed.
+Collection-log totals and section flags come from game variables. Item details include validated snapshots of collection-log pages you browse (obtained/missing status, quantities and page names), and obtained items naturally transmitted by the game. Header counts must agree with the item grid before a page is accepted. House adventure-log views are excluded to avoid capturing another player’s log. Items not observed are never assumed missing. Observations stay in memory and clear on account transitions, disabling sharing, or plugin shutdown. No automatic UI navigation or game scripts are triggered to harvest the log. Internal task identifiers and versioned allowlists may need updating after game changes. Bank contents require opening the bank with item sharing enabled. Private storage, full account history and other unexposed progress are not guaranteed.
 
 ## Credits
 

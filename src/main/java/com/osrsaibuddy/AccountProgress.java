@@ -14,12 +14,14 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
+import net.runelite.api.widgets.ComponentID;
 
 /** Read-only account progress. All methods run on the client thread; nothing is written to disk. */
 final class AccountProgress implements AccountContextTools.Source
 {
     private final Client client;
     private final Map<Integer, Integer> collection = new LinkedHashMap<>();
+    private final CollectionPages collectionPages = new CollectionPages();
     private String owner;
 
     AccountProgress(Client client) { this.client = client; }
@@ -33,13 +35,22 @@ final class AccountProgress implements AccountContextTools.Source
 
     @Override public String username() { return client.getLocalPlayer().getName(); }
 
-    void clear() { owner = null; collection.clear(); }
+    void clear() { owner = null; collection.clear(); collectionPages.clear(); }
+
+    void observeCollectionPage()
+    {
+        String current = identity();
+        if (current == null || client.getVarbitValue(VarbitID.COLLECTION_POH_HOST_BOOK_OPEN) != 0) { return; }
+        if (!current.equals(owner)) { clear(); owner = current; }
+        collectionPages.capture(client.getWidget(ComponentID.COLLECTION_LOG_ENTRY_HEADER),
+            client.getWidget(ComponentID.COLLECTION_LOG_ENTRY_ITEMS));
+    }
 
     // Script 4100 reports an obtained collection item. Also used by WikiSync; no script is invoked here.
     void obtained(int itemId)
     {
         String current = identity();
-        if (current == null || itemId <= 0) { return; }
+        if (current == null || itemId <= 0 || client.getVarbitValue(VarbitID.COLLECTION_POH_HOST_BOOK_OPEN) != 0) { return; }
         if (!current.equals(owner)) { clear(); owner = current; }
         collection.putIfAbsent(itemId, 1);
     }
@@ -48,6 +59,7 @@ final class AccountProgress implements AccountContextTools.Source
     {
         String current = identity();
         if (current == null) { clear(); return; }
+        if (client.getVarbitValue(VarbitID.COLLECTION_POH_HOST_BOOK_OPEN) != 0) { return; }
         if (!current.equals(owner)) { clear(); owner = current; }
         if (event.getContainerId() != InventoryID.COLLECTION_TRANSMIT) { return; }
         for (Item item : event.getItemContainer().getItems())
@@ -97,16 +109,30 @@ final class AccountProgress implements AccountContextTools.Source
                 }
                 break;
             case "collection_log":
-                out.addProperty("coverage", "PARTIAL: only obtained items passively transmitted by the game while sharing was enabled. Unseen items are UNKNOWN, not missing. Open the collection log to supply more data. Counts can be unavailable before the game initializes them.");
+                observeCollectionPage();
+                out.addProperty("coverage", "PARTIAL account coverage: obtained/missing item status is available for validated pages you opened while sharing was enabled. Unvisited pages/items are UNKNOWN. Missing means missing at observedAt, not necessarily now. Search by page or item name; paginate to see every entry. Open and browse your OWN collection log to supply more data.");
                 out.addProperty("reportedObtained", client.getVarpValue(VarPlayerID.COLLECTION_COUNT));
                 out.addProperty("reportedTotal", client.getVarpValue(VarPlayerID.COLLECTION_COUNT_MAX));
                 if (identity().equals(owner))
                 {
+                    out.addProperty("observedPages", collectionPages.size());
+                    JsonArray pageRows = collectionPages.entries();
+                    java.util.Set<Integer> pagedIds = new java.util.HashSet<>();
+                    for (com.google.gson.JsonElement value : pageRows)
+                    {
+                        JsonObject row = value.getAsJsonObject();
+                        int id = row.get("itemId").getAsInt();
+                        pagedIds.add(id);
+                        row.addProperty("name", client.getItemDefinition(id).getName());
+                        entries.add(row);
+                    }
                     collection.forEach((id, qty) -> {
+                        if (pagedIds.contains(id)) { return; }
                         JsonObject row = new JsonObject();
                         row.addProperty("itemId", id);
                         row.addProperty("name", client.getItemDefinition(id).getName());
                         row.addProperty("minimumObservedQuantity", qty);
+                        row.addProperty("status", "obtained");
                         entries.add(row);
                     });
                 }
