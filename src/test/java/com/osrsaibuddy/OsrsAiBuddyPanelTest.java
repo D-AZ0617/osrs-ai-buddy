@@ -59,6 +59,11 @@ public class OsrsAiBuddyPanelTest
 		int stops;
 		int refreshes;
 		boolean accept = true;
+        boolean connected; int signIns; int signOuts; int configurations;
+        @Override public boolean chatgptConnected() { return connected; }
+        @Override public void signInChatgpt() { signIns++; }
+        @Override public void signOutChatgpt() { signOuts++; }
+        @Override public void openConfigurations() { configurations++; }
 
 		FakeHost()
 		{
@@ -158,8 +163,7 @@ public class OsrsAiBuddyPanelTest
 
 		@Override
 		public void selectChat(Chat chat)
-		{
-		}
+		{ current = chat; }
 
 		@Override
 		public void renameChat(Chat chat, String name)
@@ -188,6 +192,49 @@ public class OsrsAiBuddyPanelTest
 		}
 	}
 
+
+    @Test public void defaultScreenIsRecessedEmptyConversationList() throws Throwable
+    {
+        onEdt(() -> {
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+            assertFalse(panel.composer.isVisible()); assertEquals("Conversations", panel.chatSelect.getText());
+            JTextArea empty = (JTextArea) panel.inbox.getComponent(0);
+            assertEquals("Future conversations will appear here.", empty.getText());
+            assertEquals(PanelStyle.FIELD_COLOR, empty.getBackground()); assertFalse(panel.banner.isVisible());
+        });
+    }
+    @Test public void conversationCardsOpenChatsAndTitleReturnsToList() throws Throwable
+    {
+        onEdt(() -> {
+            host.current.messages.add(new Chat.Message(Chat.Role.USER, "A recent question", 1700000000000L));
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+            JPanel card = (JPanel) panel.inbox.getComponent(0);
+            for (Component component : card.getComponents()) { if (component instanceof FlatButton) { ((FlatButton) component).doClick(); } }
+            assertTrue(panel.composer.isVisible()); assertEquals(host.current.name, panel.chatSelect.getText());
+            panel.chatSelect.doClick(); assertFalse(panel.composer.isVisible());
+        });
+    }
+    @Test public void overflowMenuOnlyOffersRequestedActionsAndLoginState() throws Throwable
+    {
+        onEdt(() -> {
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+            List<String> labels = new ArrayList<>();
+            for (Component c : panel.buildMenu().getComponents()) { if (c instanceof JMenuItem) { labels.add(((JMenuItem)c).getText()); } }
+            assertEquals(Arrays.asList("Rename", "Clear", "Delete", "Configurations", "ChatGPT: Disconnected", "Sign In"), labels);
+            for (Component c : panel.buildMenu().getComponents()) { if (c instanceof JMenuItem && ((JMenuItem)c).getText().equals("Configurations")) { ((JMenuItem)c).doClick(); } }
+            assertEquals(1, host.configurations);
+            host.connected = true;
+            for (Component c : panel.buildMenu().getComponents()) { if (c instanceof JMenuItem && ((JMenuItem)c).getText().equals("Log Out")) { ((JMenuItem)c).doClick(); } }
+            assertEquals(1, host.signOuts);
+        });
+    }
+    @Test public void previewUsesLastThreeLinesAndIsBounded()
+    {
+        Chat chat = new Chat("Example"); chat.messages.add(new Chat.Message(Chat.Role.ASSISTANT, "first\nsecond\nthird\nfourth", 123L));
+        assertEquals("second\nthird\nfourth", OsrsAiBuddyPanel.preview(chat)); assertEquals(123L, OsrsAiBuddyPanel.lastTime(chat));
+        chat.messages.add(new Chat.Message(Chat.Role.USER, "x".repeat(1000)));
+        assertTrue(OsrsAiBuddyPanel.preview(chat).length() <= 281);
+    }
 	private final FakeHost host = new FakeHost();
 
 	/** Swing components belong on the EDT, in tests too. */
@@ -228,7 +275,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			Composer.ActionButton button = panel.composer.action;
 			assertEquals(Composer.Mode.SEND, button.mode);
 			assertEquals("Send (Enter)", button.getToolTipText());
@@ -303,7 +350,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			Composer.ActionButton button = panel.composer.action;
 			panel.composer.input.setText("What drops a whip?");
 			button.doClick();
@@ -344,7 +391,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			panel.setSize(225, 600);
 			layOut(panel);
 			JComponent title = (JComponent) panel.chatSelect.getParent();
@@ -380,7 +427,7 @@ public class OsrsAiBuddyPanelTest
 				add(Chat.Role.ASSISTANT, "Answer " + i + ", long enough to wrap onto a second line in the narrow panel, "
 					+ "and onto a third one too.");
 			}
-			made[0] = new OsrsAiBuddyPanel(host);
+			made[0] = new OsrsAiBuddyPanel(host); made[0].showConversation();
 			made[0].setSize(225, 400);
 			layOut(made[0]);
 			layOut(made[0]);
@@ -429,7 +476,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			ModelPicker picker = panel.composer.models;
 			assertEquals("claude-opus-5-5", picker.button.getText());
 			JPopupMenu menu = picker.menu();
@@ -452,7 +499,7 @@ public class OsrsAiBuddyPanelTest
 		{
 			// Refresh list asks the provider, as Test connection does: not while that can't be done.
 			host.problem = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings.";
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			for (Component c : panel.composer.models.menu().getComponents())
 			{
 				if (c instanceof JMenuItem && ModelPicker.REFRESH.equals(((JMenuItem) c).getText()))
@@ -468,7 +515,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			assertEquals("Ask anything…", Composer.PLACEHOLDER);
 			// Painted in the box, not a tooltip: drawn while it's empty, and gone once there's text.
 			panel.composer.input.setSize(200, 40);
@@ -565,7 +612,7 @@ public class OsrsAiBuddyPanelTest
 		OsrsAiBuddyPanel[] made = new OsrsAiBuddyPanel[1];
 		onEdt(() ->
 		{
-			made[0] = new OsrsAiBuddyPanel(host);
+			made[0] = new OsrsAiBuddyPanel(host); made[0].showConversation();
 			made[0].setSize(225, 600);
 			layOut(made[0]);
 			relayout.install(made[0]);
@@ -623,7 +670,7 @@ public class OsrsAiBuddyPanelTest
 				add(Chat.Role.USER, "Question " + i + ", long enough to wrap onto a second line in the narrow panel");
 				add(Chat.Role.ASSISTANT, "Answer " + i + ", long enough to wrap onto a second line in the panel.");
 			}
-			made[0] = new OsrsAiBuddyPanel(host);
+			made[0] = new OsrsAiBuddyPanel(host); made[0].showConversation();
 			made[0].setSize(225, 400);
 			layOut(made[0]);
 			layOut(made[0]);
@@ -689,7 +736,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			assertTrue("an empty chat welcomes the player", panel.showsEmpty());
 			assertEquals(4, panel.empty.chips.size());
 			for (int i = 0; i < EmptyChat.STARTERS.size(); i++)
@@ -719,7 +766,7 @@ public class OsrsAiBuddyPanelTest
 			Chat.Message a1 = add(Chat.Role.ASSISTANT, "A1");
 			add(Chat.Role.USER, "Q2");
 			Chat.Message a2 = add(Chat.Role.ASSISTANT, "A2");
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			assertTrue(panel.row(a2).offersRetry());
 			assertFalse("never an older reply", panel.row(a1).offersRetry());
 
@@ -761,7 +808,7 @@ public class OsrsAiBuddyPanelTest
 			Chat.Message a1 = add(Chat.Role.ASSISTANT, "A1 **bold**");
 			add(Chat.Role.USER, "Q2");
 			Chat.Message a2 = add(Chat.Role.ASSISTANT, "A2");
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			MessageRow.Reply older = (MessageRow.Reply) panel.row(a1);
 			MessageRow.Reply latest = (MessageRow.Reply) panel.row(a2);
 			assertTrue(latest.actions.isShown());
@@ -791,60 +838,25 @@ public class OsrsAiBuddyPanelTest
 		});
 	}
 
-	@Test
-	public void theBannerShowsProblemsUntilFixedAndTestResultsUntilClosed() throws Throwable
-	{
-		onEdt(() ->
-		{
-			host.problem = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
-			assertTrue(panel.banner.isVisible());
-			assertEquals(host.problem + " Open RuneLite's settings (the wrench) and search for OSRS AI Buddy.",
-				panel.banner.text.getText());
-			assertFalse("only fixing it makes it go", panel.banner.close.isVisible());
+    @Test public void setupProblemsDoNotDisplayAnOrangeBanner() throws Throwable
+    {
+        onEdt(() -> {
+            host.problem = "Sign in from the chat menu.";
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+            assertFalse(panel.banner.isVisible());
+            assertFalse(panel.composer.isVisible());
+        });
+    }
 
-			host.problem = null;
-			panel.refreshAll();
-			assertFalse("nothing to say", panel.banner.isVisible());
-
-			host.note = new ConnectionCheck.Note(ConnectionCheck.Kind.OK, "Connected to Anthropic. claude-opus-5-5 is available.");
-			panel.refreshAll();
-			assertTrue(panel.banner.isVisible());
-			assertEquals(host.note.text, panel.banner.text.getText());
-			assertEquals(PanelStyle.OK_COLOR, panel.banner.text.getForeground());
-			assertTrue(panel.banner.close.isVisible());
-			panel.banner.close.doClick();
-			assertTrue(host.dismissed);
-			assertFalse(panel.banner.isVisible());
-
-			host.dismissed = false;
-			host.note = new ConnectionCheck.Note(ConnectionCheck.Kind.ERROR, "Anthropic didn't accept your API key.");
-			panel.refreshAll();
-			assertEquals(PanelStyle.ERROR_COLOR, panel.banner.text.getForeground());
-		});
-	}
-
-	@Test
-	public void aMessageThatCantGoYetPointsToTheBannerRatherThanRepeatIt() throws Throwable
-	{
-		onEdt(() ->
-		{
-			host.problem = "Add your Claude API key in the Claude section of the OSRS AI Buddy settings (from console.anthropic.com).";
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
-			panel.notSetUp();
-			assertTrue(panel.composer.note.isVisible());
-			assertEquals("OSRS AI Buddy isn't set up yet: see the note at the top.", panel.composer.note.getText());
-			assertTrue("said once, at the top", panel.banner.text.getText().startsWith(host.problem));
-
-			// A Test's result has the banner's place: the note says what's missing itself.
-			host.problem = "Pick a Claude model next to Send, or set one in the Claude section of the OSRS AI Buddy settings.";
-			host.note = new ConnectionCheck.Note(ConnectionCheck.Kind.OK, "Connected to Anthropic.");
-			panel.refreshAll();
-			panel.notSetUp();
-			assertEquals(host.note.text, panel.banner.text.getText());
-			assertEquals(host.problem, panel.composer.note.getText());
-		});
-	}
+    @Test public void sendingWithoutSignInGivesTheActualReasonWithoutBanner() throws Throwable
+    {
+        onEdt(() -> {
+            host.problem = "Sign in from the chat menu.";
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation(); panel.notSetUp();
+            assertEquals(host.problem, panel.composer.note.getText());
+            assertFalse(panel.banner.isVisible());
+        });
+    }
 
 	@Test
 	public void thePlayersBubblesHugShortTextOnTheRight() throws Throwable
@@ -854,7 +866,7 @@ public class OsrsAiBuddyPanelTest
 			Chat.Message shortOne = add(Chat.Role.USER, "hi");
 			Chat.Message longOne = add(Chat.Role.USER, "How do I get an abyssal whip, and what Slayer level do I need for "
 				+ "abyssal demons in the catacombs?");
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			MessageRow.Question row = (MessageRow.Question) panel.row(shortOne);
 			MessageRow.Bubble bubble = row.bubble;
 			int padding = bubble.getInsets().left + bubble.getInsets().right;
@@ -885,7 +897,7 @@ public class OsrsAiBuddyPanelTest
 			host.current.pending = new ChatApi.Pending();
 			host.current.runStartedAt = System.currentTimeMillis();
 			host.current.answering = "Claude";
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			MessageRow.Reply live = panel.liveRow();
 			assertNotNull(live);
 			assertTrue(live.status.isVisible());
@@ -915,7 +927,7 @@ public class OsrsAiBuddyPanelTest
 			Chat.Message note = add(Chat.Role.NOTE, "Summary of the 24 earlier messages, sent instead of them:\n\nThe "
 				+ "player is training Agility.");
 			add(Chat.Role.USER, "q");
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			ShowMore text = ((MessageRow.Note) panel.row(note)).text;
 			assertEquals("Summary of 24 earlier messages", text.lineText());
 			assertEquals(Glyph.Shape.CHEVRON_DOWN, text.chevron());
@@ -1118,7 +1130,7 @@ public class OsrsAiBuddyPanelTest
 		{
 			Chat.Message q = add(Chat.Role.USER, "What should I train?");
 			q.context = "[Character: Zezima]\nCombat level: 126";
-			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
+			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation();
 			ShowMore s = ((MessageRow.Question) panel.row(q)).shared;
 			assertEquals("Sent your character details", s.lineText());
 			assertEquals(Glyph.Shape.CHEVRON_DOWN, s.chevron());

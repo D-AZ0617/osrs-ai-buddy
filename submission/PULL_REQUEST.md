@@ -1,6 +1,6 @@
 ## OSRS AI Buddy
 
-Adds a ChatGPT-plan-focused OSRS companion with browser sign-in, a chat sidebar, locally intercepted ::buddy questions, OSRS Wiki look-ups, GE prices, and opt-in character/item, extended account progress, and read-only Wise Old Man context. AI requests and all account-sharing options default off.
+Adds a ChatGPT-plan-focused OSRS companion with browser sign-in, a chat sidebar, locally intercepted ::buddy questions, OSRS Wiki look-ups, GE prices, and opt-in character/item, extended account progress, and read-only Wise Old Man context. All account-sharing options default off. ChatGPT sign-in authorizes the connection; the redundant master request checkbox is removed.
 
 This is a disclosed derivative of brendanciccone/osrs-ai-chat, not a clean-room implementation. It has a distinct package/config/storage namespace and icon. The original BSD license and attribution are preserved. Unlike the upstream multi-provider plugin, it supports ChatGPT plan OAuth only and has no API-key, Claude, compatible-endpoint or local-model configuration.
 
@@ -17,7 +17,7 @@ This is a disclosed derivative of brendanciccone/osrs-ai-chat, not a clean-room 
 
 Local build and test results are recorded in SUBMISSION.md. Tests use loopback stand-ins, not real accounts. A separate local developer build verified the ChatGPT flow before this project was rebranded; fresh sign-in under the new application name still requires user consent.
 
-Validation: all 358 tests passed on the official RuneLite launcher's Java 11.0.30 runtime. Production classes target Java 11. Automated tests use loopback stand-ins.
+Validation: all 362 tests passed on the official RuneLite launcher's Java 11.0.30 runtime. Production classes target Java 11. Automated tests use loopback stand-ins.
 
 Generated-by: OpenAI Codex
 

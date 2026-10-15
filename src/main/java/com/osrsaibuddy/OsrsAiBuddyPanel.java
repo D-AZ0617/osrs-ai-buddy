@@ -6,19 +6,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,9 +40,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 	private static final int BOTTOM_SLACK = 24;
 	private static final String CHAT_CARD = "chat";
 	private static final String EMPTY_CARD = "empty";
-	private static final String SETTINGS_HINT = " Open RuneLite's settings (the wrench) and search for OSRS AI Buddy.";
 	/** Above the input box when a message can't go yet because of what the banner says. */
-	static final String NOT_SET_UP = "OSRS AI Buddy isn't set up yet: see the note at the top.";
 
 	/** What the panel needs from the plugin. All on the EDT. */
 	interface Host
@@ -110,16 +102,17 @@ class OsrsAiBuddyPanel extends PluginPanel
 		default boolean chatgptSigningIn() { return false; }
 		default void signInChatgpt() { }
 		default void signOutChatgpt() { }
-		default void manageChatgptUsage() { }
+        default void openConfigurations() { }
 	}
 
 	private final Host host;
 
-	private final DefaultComboBoxModel<Chat> chatModel = new DefaultComboBoxModel<>();
-	final JComboBox<Chat> chatSelect = new TitleSelect(chatModel);
+	final FlatButton chatSelect = new FlatButton("Conversations", null, "Show conversations");
+    private boolean inboxVisible = true;
+    final JPanel inbox = new TranscriptPanel();
 	final FlatButton newChat = new FlatButton(null, new Glyph(Glyph.Shape.PLUS, 14), "New chat");
 	final FlatButton menu = new FlatButton(null, new Glyph(Glyph.Shape.MORE, 14),
-		"Rename, clear or delete this chat, or test the connection");
+		"Conversation actions, configurations and ChatGPT connection");
 	final Banner banner;
 	private final CardLayout cards = new CardLayout();
 	private final JPanel center = new JPanel(cards);
@@ -133,11 +126,9 @@ class OsrsAiBuddyPanel extends PluginPanel
 	/** Redraws the line under the reply on its way ("Thinking...", the seconds) while there is one. */
 	private final Timer ticker = new Timer(1000, e -> refreshLive(currentChat()));
 
-	private boolean updatingCombo;
 	/** What the transcript currently shows, to skip rebuilding it when nothing changed. */
 	private String shownKey = "";
 	private Chat shownChat;
-	private String comboKey = "";
 	/** The transcript's rows, kept between rebuilds so a new message doesn't redraw every earlier one. */
 	private final Map<Chat.Message, MessageRow> rows = new IdentityHashMap<>();
 	/** The reply on its way, at the end of the transcript; null when none is. */
@@ -218,6 +209,12 @@ class OsrsAiBuddyPanel extends PluginPanel
 		jump.addActionListener(e -> scrollToBottom());
 		center.setOpaque(false);
 		center.add(new Overlay(), CHAT_CARD);
+        inbox.setLayout(new StackLayout(9)); inbox.setBackground(PanelStyle.BACKGROUND);
+        JScrollPane inboxScroll = new JScrollPane(inbox);
+        inboxScroll.setBorder(null); inboxScroll.getViewport().setBackground(PanelStyle.BACKGROUND);
+        inboxScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        inboxScroll.getVerticalScrollBar().setUnitIncrement(16);
+        center.add(inboxScroll, "inbox");
 		JPanel middle = new JPanel(new GridBagLayout());
 		middle.setOpaque(false);
 		GridBagConstraints c = new GridBagConstraints();
@@ -236,49 +233,9 @@ class OsrsAiBuddyPanel extends PluginPanel
 	{
 		JPanel row = new JPanel(new BorderLayout(4, 0));
 		row.setOpaque(false);
-		chatSelect.setRenderer(new DefaultListCellRenderer()
-		{
-			{
-				// Chat names come from what the player typed; never let Swing render them as HTML.
-				putClientProperty("html.disable", Boolean.TRUE);
-			}
-
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus)
-			{
-				super.getListCellRendererComponent(list, value, index, selected, focus);
-				putClientProperty("html.disable", Boolean.TRUE);
-				if (value instanceof Chat)
-				{
-					Chat chat = (Chat) value;
-					// In the box itself (index -1) it's the chat's title; in the list, one chat among others.
-					boolean title = index < 0;
-					setFont(title ? PanelStyle.TITLE_FONT : PanelStyle.TEXT_FONT);
-					setText(chat.name + (!title && chat.isRunning() ? "  (waiting)" : ""));
-				}
-				return this;
-			}
-		});
-		chatSelect.addActionListener(e ->
-		{
-			Object sel = chatSelect.getSelectedItem();
-			if (!updatingCombo && sel instanceof Chat)
-			{
-				host.selectChat((Chat) sel);
-			}
-		});
-		chatSelect.setToolTipText("Your chats: pick one to go back to it");
-		chatSelect.setFont(PanelStyle.TITLE_FONT);
-		chatSelect.setForeground(PanelStyle.TEXT_COLOR);
-		chatSelect.setBackground(PanelStyle.BACKGROUND);
-		// No box around it: it reads as the chat's title, with the arrow saying it opens. FlatLaf, which RuneLite's look
-		// and feel is built on, would also draw the arrow on a box of its own colour, and make the whole thing at least
-		// 72 pixels wide; other looks ignore both.
-		chatSelect.setBorder(new EmptyBorder(0, 0, 0, 0));
-		chatSelect.putClientProperty("FlatLaf.style", Collections.singletonMap("buttonBackground", PanelStyle.BACKGROUND));
-		chatSelect.putClientProperty("JComponent.minimumWidth", 0);
-		// As wide as the title needs, so the arrow comes right after it; a long title is cut to the room beside the
-		// buttons.
+        chatSelect.addActionListener(e -> showInbox());
+        chatSelect.setFont(PanelStyle.TITLE_FONT);
+        chatSelect.setForeground(PanelStyle.TEXT_COLOR);
 		JPanel title = new JPanel(null)
 		{
 			@Override
@@ -305,7 +262,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 			b.setBorder(new EmptyBorder(5, 5, 5, 5));
 			buttons.add(b);
 		}
-		newChat.addActionListener(e -> host.newChat());
+		newChat.addActionListener(e -> { host.newChat(); showConversation(); });
 		menu.addActionListener(e -> showMenu(menu));
 		row.add(buttons, BorderLayout.EAST);
 		return row;
@@ -318,6 +275,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 		refreshChats();
 		refreshTranscript();
 		refreshStatus();
+        if (inboxVisible) { refreshInbox(); cards.show(center, "inbox"); composer.setVisible(false); }
 	}
 
 	/**
@@ -343,57 +301,62 @@ class OsrsAiBuddyPanel extends PluginPanel
 	/** The banner, and the model picker. */
 	private void refreshSetup()
 	{
-		ConnectionCheck.Note note = host.connectionNote();
-		String problem = host.setupProblem();
-		if (note != null)
-		{
-			banner.show(note.text, color(note.kind), true);
-		}
-		else if (problem != null)
-		{
-			// Until it's fixed: there's nothing else the player can do here.
-			banner.show(problem + SETTINGS_HINT, PanelStyle.WARNING_COLOR, false);
-		}
-		else
-		{
-			banner.show(null, null, false);
-		}
+        banner.show(null, null, false);
 		// Refresh list asks the provider, as Test connection does: not while that can't be done.
 		composer.models.show(host.model(), host.modelChoices(), host.modelTip(), host.modelNote(), host.testProblem());
-		chatSelect.setEnabled(host.currentChat() != null);
+		chatSelect.setEnabled(true);
 	}
 
 	private void refreshChats()
 	{
-		Chat currentChat = host.currentChat();
-		StringBuilder key = new StringBuilder(currentChat == null ? "" : currentChat.id);
-		for (Chat c : host.chats())
-		{
-			key.append('|').append(c.id).append(':').append(c.name).append(':').append(c.isRunning());
-		}
-		if (key.toString().equals(comboKey))
-		{
-			return;
-		}
-		comboKey = key.toString();
-		updatingCombo = true;
-		try
-		{
-			chatModel.removeAllElements();
-			for (Chat c : host.chats())
-			{
-				chatModel.addElement(c);
-			}
-			if (currentChat != null)
-			{
-				chatModel.setSelectedItem(currentChat);
-			}
-		}
-		finally
-		{
-			updatingCombo = false;
-		}
-	}
+        Chat chat = host.currentChat();
+        chatSelect.setText(inboxVisible || chat == null ? "Conversations" : chat.name);
+    }
+
+    void showInbox() { inboxVisible = true; refreshAll(); }
+    void showConversation() { inboxVisible = false; composer.setVisible(true); shownKey = ""; refreshAll(); }
+
+    private void refreshInbox()
+    {
+        inbox.removeAll();
+        java.util.List<Chat> chats = new java.util.ArrayList<>(host.chats());
+        chats.removeIf(chat -> chat.messages.isEmpty() && chat.defaultName && !chat.isRunning());
+        chats.sort((left, right) -> Long.compare(lastTime(right), lastTime(left)));
+        if (chats.isEmpty())
+        {
+            JTextArea text = PanelStyle.textArea("Future conversations will appear here.");
+            text.setForeground(PanelStyle.MUTED_COLOR); text.setBackground(PanelStyle.FIELD_COLOR);
+            text.setOpaque(true); text.setBorder(new EmptyBorder(16, 12, 16, 12));
+            inbox.add(text);
+        }
+        for (Chat chat : chats)
+        {
+            JPanel box = new JPanel(new BorderLayout(0, 7));
+            box.setBackground(PanelStyle.FIELD_COLOR); box.setBorder(new EmptyBorder(12, 12, 12, 12));
+            JPanel headings = new JPanel(new StackLayout(4)); headings.setOpaque(false);
+            javax.swing.JLabel title = new javax.swing.JLabel(); title.putClientProperty("html.disable", true);
+            title.setText(chat.name); title.setFont(PanelStyle.TITLE_FONT); title.setForeground(PanelStyle.TEXT_COLOR);
+            javax.swing.JLabel date = new javax.swing.JLabel(new java.text.SimpleDateFormat("MMM d, yyyy  h:mm a").format(new java.util.Date(lastTime(chat))));
+            date.setFont(PanelStyle.SMALL_FONT); date.setForeground(PanelStyle.MUTED_COLOR);
+            headings.add(title); headings.add(date); box.add(headings, BorderLayout.NORTH);
+            JTextArea preview = PanelStyle.textArea(preview(chat)); preview.setForeground(PanelStyle.MUTED_COLOR);
+            preview.setRows(3); preview.setOpaque(false); box.add(preview, BorderLayout.CENTER);
+            java.awt.event.MouseAdapter click = new java.awt.event.MouseAdapter() { public void mouseClicked(java.awt.event.MouseEvent e) { host.selectChat(chat); showConversation(); } };
+            for (Component child : new Component[]{box, headings, title, date, preview}) { child.addMouseListener(click); child.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR)); }
+            FlatButton open = new FlatButton("Open conversation", null, "Open conversation");
+            open.addActionListener(e -> { host.selectChat(chat); showConversation(); }); box.add(open, BorderLayout.SOUTH);
+            inbox.add(box);
+        }
+        inbox.revalidate(); inbox.repaint();
+    }
+
+    static long lastTime(Chat chat) { return chat.messages.isEmpty() ? chat.createdAt : chat.messages.get(chat.messages.size() - 1).time; }
+    static String preview(Chat chat)
+    {
+        if (chat.isRunning()) { return chat.liveText == null ? "Reply in progress…" : tail(chat.liveText); }
+        return chat.messages.isEmpty() ? "No messages yet." : tail(chat.messages.get(chat.messages.size() - 1).text);
+    }
+    private static String tail(String text) { String[] lines = text.split("\\R"); String preview = String.join("\n", java.util.Arrays.copyOfRange(lines, Math.max(0, lines.length - 3), lines.length)); return preview.length() > 280 ? "…" + preview.substring(preview.length() - 280) : preview; }
 
 	/** What the transcript shows of a chat: when this changes, it's rebuilt. */
 	private static String transcriptKey(Chat chat)
@@ -579,7 +542,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 	 */
 	void notSetUp()
 	{
-		showNote(host.connectionNote() == null ? NOT_SET_UP : host.setupProblem());
+		showNote(host.setupProblem());
 	}
 
 	void focusInput()
@@ -620,59 +583,48 @@ class OsrsAiBuddyPanel extends PluginPanel
 	}
 
 	private void showMenu(JComponent anchor)
+    {
+        JPopupMenu popup = buildMenu();
+        popup.show(anchor, anchor.getWidth() - popup.getPreferredSize().width, anchor.getHeight());
+    }
+
+    JPopupMenu buildMenu()
 	{
 		Chat chat = host.currentChat();
-		if (chat == null)
-		{
-			return;
-		}
 		JPopupMenu popup = new JPopupMenu();
-		popup.add(PanelStyle.menuItem("Rename…")).addActionListener(e ->
+		popup.add(PanelStyle.menuItem("Rename")).addActionListener(e ->
 		{
-			String name = JOptionPane.showInputDialog(this, "Chat name:", chat.name);
+			if (chat == null) { return; }
+            String name = JOptionPane.showInputDialog(this, "Chat name:", chat.name);
 			if (name != null && !name.trim().isEmpty())
 			{
 				host.renameChat(chat, name.trim());
 			}
 		});
-		popup.add(PanelStyle.menuItem("Clear chat")).addActionListener(e ->
+		popup.add(PanelStyle.menuItem("Clear")).addActionListener(e ->
 		{
-			if (confirm("OSRS AI Buddy", "Clear \"" + chat.name + "\"? The assistant forgets it too."))
+			if (chat != null && confirm("OSRS AI Buddy", "Clear \"" + chat.name + "\"? The assistant forgets it too."))
 			{
 				host.clearChat(chat);
 			}
 		});
-		popup.add(PanelStyle.menuItem("Delete chat")).addActionListener(e ->
+		popup.add(PanelStyle.menuItem("Delete")).addActionListener(e ->
 		{
-			if (confirm("OSRS AI Buddy", "Delete \"" + chat.name + "\"?"))
+			if (chat != null && confirm("OSRS AI Buddy", "Delete \"" + chat.name + "\"?"))
 			{
 				host.deleteChat(chat);
 			}
 		});
 		popup.addSeparator();
-		// Nothing is sent while AI requests are off, a test included; the tooltip says what's missing.
-		JMenuItem account = PanelStyle.menuItem(host.chatgptStatus());
-		account.setEnabled(false);
-		popup.add(account);
-		JMenuItem signIn = PanelStyle.menuItem(host.chatgptSigningIn() ? "Waiting for ChatGPT sign-in…" : "Continue with ChatGPT");
-		signIn.setEnabled(!host.chatgptSigningIn());
-		signIn.addActionListener(e -> host.signInChatgpt());
-		popup.add(signIn);
-		JMenuItem usage = PanelStyle.menuItem("Manage ChatGPT usage");
-		usage.addActionListener(e -> host.manageChatgptUsage());
-		popup.add(usage);
-		JMenuItem signOut = PanelStyle.menuItem("Sign out of ChatGPT");
-		signOut.setEnabled(host.chatgptConnected() && !host.chatgptSigningIn());
-		signOut.addActionListener(e -> host.signOutChatgpt());
-		popup.add(signOut);
-		popup.addSeparator();
-		String problem = host.testProblem();
-		JMenuItem test = PanelStyle.menuItem("Test connection");
-		test.setEnabled(problem == null);
-		test.setToolTipText(problem == null ? "Check the connection, and list the models you can use" : problem);
-		test.addActionListener(e -> host.testConnection());
-		popup.add(test);
-		popup.show(anchor, anchor.getWidth() - popup.getPreferredSize().width, anchor.getHeight());
+        for (Component component : popup.getComponents()) { if (component instanceof JMenuItem) { component.setEnabled(chat != null && !inboxVisible); } }
+        popup.add(PanelStyle.menuItem("Configurations")).addActionListener(e -> host.openConfigurations());
+        JMenuItem account = PanelStyle.menuItem("ChatGPT: " + (host.chatgptConnected() ? "Connected" : "Disconnected"));
+        account.setEnabled(false); popup.add(account);
+        JMenuItem login = PanelStyle.menuItem(host.chatgptConnected() ? "Log Out" : "Sign In");
+        login.setEnabled(!host.chatgptSigningIn());
+        login.addActionListener(e -> { if (host.chatgptConnected()) { host.signOutChatgpt(); } else { host.signInChatgpt(); } });
+        popup.add(login);
+		return popup;
 	}
 
 	/** A confirmation dialog whose text is shown as plain text, never HTML. */
@@ -744,32 +696,6 @@ class OsrsAiBuddyPanel extends PluginPanel
 	 * The chat's title, which opens the list of chats. The look and feel makes it as wide as the longest chat's name; it
 	 * only needs the shown chat's, so that its arrow comes right after the title, as in chat apps.
 	 */
-	private static final class TitleSelect extends JComboBox<Chat>
-	{
-		TitleSelect(DefaultComboBoxModel<Chat> model)
-		{
-			super(model);
-		}
-
-		@Override
-		public Dimension getPreferredSize()
-		{
-			Dimension d = super.getPreferredSize();
-			Object shown = getSelectedItem();
-			if (shown instanceof Chat)
-			{
-				// The titles differ only in their names, all in the title font.
-				FontMetrics fm = getFontMetrics(PanelStyle.TITLE_FONT);
-				int widest = 0;
-				for (int i = 0; i < getItemCount(); i++)
-				{
-					widest = Math.max(widest, fm.stringWidth(getItemAt(i).name));
-				}
-				d.width -= widest - fm.stringWidth(((Chat) shown).name);
-			}
-			return d;
-		}
-	}
 
 	/** Tracks the viewport width so the wrapped text inside gets a real width. */
 	private static class TranscriptPanel extends JPanel implements Scrollable

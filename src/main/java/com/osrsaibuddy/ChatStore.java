@@ -35,6 +35,7 @@ final class ChatStore
 
 	static final class SavedChat
 	{
+        long createdAt;
 		String id;
 		String name;
 		boolean defaultName;
@@ -71,6 +72,7 @@ final class ChatStore
 		{
 			SavedChat sc = new SavedChat();
 			sc.id = c.id;
+            sc.createdAt = c.createdAt;
 			sc.name = c.name;
 			sc.defaultName = c.defaultName;
 			sc.namedByPlayer = c.namedByPlayer;
@@ -152,6 +154,7 @@ final class ChatStore
 				continue;
 			}
 			Chat c = new Chat(sc.id, sc.name);
+            if (sc.createdAt > 0) { c.createdAt = sc.createdAt; }
 			c.defaultName = sc.defaultName;
 			c.namedByPlayer = sc.namedByPlayer;
 			c.summary = sc.summary == null || sc.summary.trim().isEmpty() ? null : sc.summary;

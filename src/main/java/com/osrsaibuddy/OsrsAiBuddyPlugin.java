@@ -35,12 +35,10 @@ import net.runelite.client.events.ClientShutdown;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.chatbox.ChatboxPanelManager;
-import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
-import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import okhttp3.OkHttpClient;
 
@@ -54,7 +52,7 @@ import okhttp3.OkHttpClient;
 @PluginDescriptor(
 	name = "OSRS AI Buddy",
 	internalName = "osrs-ai-buddy",
-	description = "Your OSRS companion powered by ChatGPT sign-in: training advice, quest guidance, Allow OSRS Wiki searches and optional account context",
+	description = "Your OSRS companion powered by ChatGPT sign-in: training advice, quest guidance, Wiki searches and optional account context",
 	tags = {"chatgpt", "buddy", "assistant", "ai", "wiki", "training", "quests", "advice"}
 )
 public class OsrsAiBuddyPlugin extends Plugin
@@ -92,6 +90,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 
 	@Inject
 	private ClientToolbar clientToolbar;
+    @Inject private net.runelite.client.plugins.PluginManager pluginManager;
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
@@ -99,8 +98,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 	@Inject
 	private ChatboxPanelManager chatboxPanelManager;
 
-	@Inject
-	private KeyManager keyManager;
 
 	@Inject
 	private Notifier notifier;
@@ -155,13 +152,13 @@ public class OsrsAiBuddyPlugin extends Plugin
     @Subscribe
     public void onGameTick(net.runelite.api.events.GameTick event)
     {
-        if (accountProgress != null && config.aiRequests() && config.shareProgress()) { accountProgress.observeCollectionPage(); }
+        if (accountProgress != null && config.shareProgress()) { accountProgress.observeCollectionPage(); }
     }
 
     @Subscribe
     public void onScriptPreFired(net.runelite.api.events.ScriptPreFired event)
     {
-        if (accountProgress == null || !config.aiRequests() || !config.shareProgress() || event.getScriptId() != 4100) { return; }
+        if (accountProgress == null || !config.shareProgress() || event.getScriptId() != 4100) { return; }
         Object[] args = event.getScriptEvent().getArguments();
         if (args != null && args.length > 1 && args[1] instanceof Integer) { accountProgress.obtained((Integer) args[1]); }
     }
@@ -183,14 +180,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 	/** Client thread: replies that arrived while logged out, echoed once the player logs in. */
 	private final List<String[]> heldEchoes = new ArrayList<>();
 
-	private final HotkeyListener askHotkey = new HotkeyListener(() -> config.askHotkey())
-	{
-		@Override
-		public void hotkeyPressed()
-		{
-			clientThread.invoke(OsrsAiBuddyPlugin.this::openAskPrompt);
-		}
-	};
 
 	@Provides
 	OsrsAiBuddyConfig provideConfig(ConfigManager configManager)
@@ -218,7 +207,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 			.callTimeout(20, TimeUnit.SECONDS)
 			.build();
 
-		chatgpt = new ChatGptAuth(testHttp, gson, new ChatGptRegistrationStore(() -> getPluginDirectory().joinSegment("chatgpt"), gson, config::rememberChatgpt));
+		chatgpt = new ChatGptAuth(testHttp, gson, new ChatGptRegistrationStore(() -> getPluginDirectory().joinSegment("chatgpt"), gson, () -> true));
 		provider = new ProviderSetup(config, chatgpt);
 		ChatGptAuth loading = chatgpt;
 		loading.load(problem -> SwingUtilities.invokeLater(() -> {
@@ -234,14 +223,14 @@ public class OsrsAiBuddyPlugin extends Plugin
 		}
 		forgetBankUnlessShared();
 		Requests requests = new Requests();
-		tools = new ToolBox.Parts(new WikiClient(okHttpClient, gson, () -> config.aiRequests() && config.wikiLookups()),
+		tools = new ToolBox.Parts(new WikiClient(okHttpClient, gson, () -> config.wikiLookups()),
 			new LookupTools.RuneLitePrices(itemManager, clientThread, executor, runeLiteConfig::useWikiItemPrices),
 			gameData, clientThread::invoke, executor, this::canShareItems, requests::shareCharacter);
 		accountProgress = new AccountProgress(client);
         wom = new WomClient(okHttpClient, gson);
         tools.extras = (setup, wanted, activity) -> new AccountContextTools(accountProgress, clientThread::invoke, executor, wom,
-            () -> setup.shareProgress && config.aiRequests() && config.shareProgress(),
-            () -> setup.shareWom && config.aiRequests() && config.shareWom(), wanted, activity);
+            () -> setup.shareProgress && config.shareProgress(),
+            () -> setup.shareWom && config.shareWom(), wanted, activity);
         runner = new RequestRunner(requests, SwingUtilities::invokeLater, executor);
 		tester = new ConnectionTester(SwingUtilities::invokeLater, () ->
 		{
@@ -275,7 +264,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 			.panel(panel)
 			.build();
 		clientToolbar.addNavigation(navButton);
-		keyManager.registerKeyListener(askHotkey);
+
 		// "Keep conversations on this PC" may have changed while OSRS AI Buddy was off, unseen by onConfigChanged: act on it now.
 		saver.apply();
 	}
@@ -283,7 +272,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
-		keyManager.unregisterKeyListener(askHotkey);
+
         if (wom != null) { wom.clear(); }
         if (accountProgress != null) { clientThread.invokeLater(accountProgress::clear); }
 		// The chats are kept for when the plugin is turned back on, but nothing is left waiting for a reply.
@@ -305,34 +294,25 @@ public class OsrsAiBuddyPlugin extends Plugin
 	{
 		if (OsrsAiBuddyConfig.GROUP.equals(e.getGroup()))
 		{
-			if (wom != null && (!config.aiRequests() || !config.shareWom())) { wom.clear(); }
-            if (accountProgress != null && (!config.aiRequests() || !config.shareProgress())) { clientThread.invokeLater(accountProgress::clear); }
+			if (wom != null && (!config.shareWom())) { wom.clear(); }
+            if (accountProgress != null && (!config.shareProgress())) { clientThread.invokeLater(accountProgress::clear); }
             Runnable apply = () ->
 			{
 				if (panel == null)
 				{
 					return;
 				}
-				// "Nothing is sent while this is off": that includes requests already on their way.
-				if ("aiRequests".equals(e.getKey()) && !config.aiRequests())
-				{
-					stopAll("Stopped: AI requests were turned off.");
-					tester.stop();
-				}
-				if ("rememberChatgpt".equals(e.getKey()) && chatgpt != null)
-                {
-                    chatgpt.saveSessionPreference(problem -> SwingUtilities.invokeLater(() -> { if (problem != null && panel != null) { javax.swing.JOptionPane.showMessageDialog(panel, problem, "ChatGPT sign-in", javax.swing.JOptionPane.INFORMATION_MESSAGE); } }));
-                }
+				// Sharing and local-history changes apply immediately.
+
                 if ("rememberChats".equals(e.getKey()))
 				{
 					saver.apply();
 				}
-				// Another provider, key or address: the picker's list is asked for again (never with AI requests off).
+				// Refresh the model picker after settings change.
 				listModels();
 				panel.refreshAll();
 			};
-			// Settings are usually changed on the Swing thread: act at once there, so that no tool round or retry
-			// that's already due can go out after "Allow Buddy to answer" was turned off.
+			// Apply UI updates on the Swing thread.
 			if (SwingUtilities.isEventDispatchThread())
 			{
 				apply.run();
@@ -341,7 +321,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 			{
 				SwingUtilities.invokeLater(apply);
 			}
-			if ("shareItems".equals(e.getKey()) || "aiRequests".equals(e.getKey()))
+			if ("shareItems".equals(e.getKey()))
 			{
 				forgetBankUnlessShared();
 			}
@@ -355,7 +335,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 	@Subscribe
 	public void onItemContainerChanged(ItemContainerChanged e)
 	{
-        if (accountProgress != null && config.aiRequests() && config.shareProgress()) { accountProgress.observe(e); }
+        if (accountProgress != null && config.shareProgress()) { accountProgress.observe(e); }
 		if (canShareItems())
 		{
 			gameData.itemContainerChanged(e);
@@ -364,7 +344,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 
 	private boolean canShareItems()
 	{
-		return config.aiRequests() && config.shareItems();
+		return config.shareItems();
 	}
 
 	/** The bank as last seen isn't kept where it can't be shared. Also checked when OSRS AI Buddy is turned on. */
@@ -408,8 +388,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 
 	private String systemPrompt()
 	{
-		String extra = config.instructions().trim();
-		return extra.isEmpty() ? SYSTEM_PROMPT : SYSTEM_PROMPT + "\n\nThe player's own instructions: " + extra;
+		return SYSTEM_PROMPT;
 	}
 
 	// ------------------------------------------------------------------
@@ -659,6 +638,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 	void newChat()
 	{
 		current = addChat();
+        panel.showConversation();
 		panel.refreshAll();
 		panel.focusInput();
 	}
@@ -723,13 +703,30 @@ public class OsrsAiBuddyPlugin extends Plugin
 	/** What {@link OsrsAiBuddyPanel} needs from the plugin. On the EDT. */
 	private final class Panel implements OsrsAiBuddyPanel.Host
 	{
+        @Override public void openConfigurations()
+        {
+            // Reuse RuneLite's public overlay-config navigation handler; no overlay is displayed or registered.
+            net.runelite.client.ui.overlay.Overlay target = new net.runelite.client.ui.overlay.Overlay(OsrsAiBuddyPlugin.this) {
+                @Override public java.awt.Dimension render(java.awt.Graphics2D graphics) { return null; }
+            };
+            for (Plugin installed : pluginManager.getPlugins())
+            {
+                if (installed instanceof net.runelite.client.plugins.config.ConfigPlugin)
+                {
+                    ((net.runelite.client.plugins.config.ConfigPlugin) installed).onOverlayMenuClicked(new net.runelite.client.events.OverlayMenuClicked(
+                        new net.runelite.client.ui.overlay.OverlayMenuEntry(net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG, "Configure", "OSRS AI Buddy"), target));
+                    return;
+                }
+            }
+            javax.swing.JOptionPane.showMessageDialog(panel, "RuneLite's configuration panel is unavailable.", "Configurations", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+
 		@Override public String chatgptStatus()
 		{
 			return chatgpt != null && chatgpt.connected() ? "ChatGPT connected · " + chatgpt.account() : "ChatGPT plan: not connected";
 		}
 		@Override public boolean chatgptConnected() { return chatgpt != null && chatgpt.signedIn(); }
 		@Override public boolean chatgptSigningIn() { return chatgpt != null && chatgpt.signingIn(); }
-		@Override public void manageChatgptUsage() { net.runelite.client.util.LinkBrowser.browse("https://chatgpt.com/settings/usage"); }
 		@Override public void signInChatgpt()
 		{
 			if (chatgpt == null) { return; }
@@ -743,7 +740,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 				{
 					stopAll("Stopped: ChatGPT connection changed.");
 					tester.stop();
-					chatgptMessage("ChatGPT connected. To ask questions, turn on Allow Buddy to answer in OSRS AI Buddy settings, then choose a model next to Send. Character and item sharing stay under your control. No API-key fallback is used.");
+
 					listModels();
 				}
 				else { chatgptMessage(problem); }
@@ -755,7 +752,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 			if (chatgpt == null) { return; }
 			stopAll("Stopped: signed out of ChatGPT.");
 			tester.stop();
-			configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, "aiRequests", false);
+
 			ChatGptAuth signingOut = chatgpt;
 			signingOut.signOut(problem -> SwingUtilities.invokeLater(() -> {
 				if (chatgpt != signingOut || panel == null) { return; }
@@ -870,6 +867,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		public void selectChat(Chat chat)
 		{
 			OsrsAiBuddyPlugin.this.selectChat(chat);
+            panel.showConversation();
 		}
 
 		@Override
@@ -909,13 +907,13 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override
 		public boolean aiRequests()
 		{
-			return config.aiRequests();
+			return true;
 		}
 
 		@Override
 		public boolean shareCharacter()
 		{
-			return config.aiRequests() && config.sendCharacter();
+			return config.sendCharacter();
 		}
 
 		@Override
@@ -1084,25 +1082,8 @@ public class OsrsAiBuddyPlugin extends Plugin
 		String name = chat.namedByPlayer ? chat.name : null;
 		String text = m.text;
 		String where = name != null ? " in \"" + name + "\"" : "";
-		clientThread.invokeLater(() ->
-		{
-			notifier.notify(config.notifyOnDone(), (ok ? who + " replied" : "OSRS AI Buddy hit a problem") + where);
-			if (!config.echoToChat())
-			{
-				return;
-			}
-			String label = ok ? who : "OSRS AI Buddy (error)";
-			if (client.getGameState() == GameState.LOGGED_IN)
-			{
-				echo(label, name, text);
-			}
-			else if (heldEchoes.size() < 10)
-			{
-				// Chat added at the login screen is never seen; keep it for later.
-				heldEchoes.add(new String[]{label, name, text});
-			}
-		});
-	}
+        clientThread.invokeLater(() -> notifier.notify(config.notifyOnDone(), (ok ? who + " replied" : "OSRS AI Buddy hit a problem") + where));
+    }
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged e)
@@ -1126,7 +1107,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 	/** Client thread. {@code chatName}: shown with the first message, or null. */
 	private void echo(String label, String chatName, String text)
 	{
-		for (String message : GameChatEcho.echoMessages(label, chatName, text, config.echoMaxChars()))
+		for (String message : GameChatEcho.echoMessages(label, chatName, text, 500))
 		{
 			queueChat(message);
 		}

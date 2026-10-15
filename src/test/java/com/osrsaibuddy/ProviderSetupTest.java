@@ -10,25 +10,24 @@ public class ProviderSetupTest
     @Test public void requestsAndAccountSharingAreOffByDefault()
     {
         OsrsAiBuddyConfig config = new OsrsAiBuddyConfig() { };
-        assertFalse(config.aiRequests()); assertFalse(config.sendCharacter()); assertFalse(config.shareItems());
-        assertTrue(config.rememberChatgpt());
+        assertFalse(config.sendCharacter()); assertFalse(config.shareItems());
         assertEquals("osrs-ai-buddy", OsrsAiBuddyConfig.GROUP);
         assertEquals("", config.chatgptPlanModel());
         ProviderSetup setup = new ProviderSetup(config, null);
-        assertTrue(setup.connectionProblem().contains("Allow Buddy to answer"));
+        assertTrue(setup.connectionProblem().contains("Sign in"));
         assertNull(setup.api(null, null)); assertNull(setup.testApi(null, null));
     }
     @Test public void enablingRequestsDoesNotBypassSignIn()
     {
-        OsrsAiBuddyConfig config = new OsrsAiBuddyConfig() { @Override public boolean aiRequests() { return true; } };
+        OsrsAiBuddyConfig config = new OsrsAiBuddyConfig() { };
         ProviderSetup setup = new ProviderSetup(config, null);
-        assertTrue(setup.problem().contains("Continue with ChatGPT"));
+        assertTrue(setup.problem().contains("Sign in"));
         assertNull(setup.api(null, null)); assertNull(setup.testApi(null, null));
         assertEquals("chatgptPlanModel", setup.modelKey()); assertEquals("ChatGPT", setup.service());
     }
     @Test public void onlyProjectRelevantSettingsAreExposed()
     {
-        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("aiRequests", "instructions", "wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "rememberChats", "rememberChatgpt", "shareProgress", "shareWom", "notifyOnDone", "echoToChat", "echoMaxChars", "askHotkey"));
+        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "rememberChats", "shareProgress", "shareWom", "notifyOnDone"));
         java.util.Set<String> actual = new java.util.HashSet<>();
         for (java.lang.reflect.Method method : OsrsAiBuddyConfig.class.getDeclaredMethods())
         {

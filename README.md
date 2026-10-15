@@ -8,7 +8,7 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 
 ## What Buddy does
 
-- Chats in a RuneLite sidebar, with streaming replies, multiple conversations, retry and copy.
+- Opens to a conversation inbox with dated cards and recent-message previews. Chats support streaming replies, retry and copy.
 - Accepts `::buddy <question>` in the chatbox; the command is intercepted locally and is not sent to game chat.
 - Searches and reads the OSRS Wiki, and checks Grand Exchange prices.
 - Optionally uses your character levels, quest progress, Slayer task and diaries for more useful advice.
@@ -20,23 +20,25 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 
 ## Connect ChatGPT
 
-1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Continue with ChatGPT**.
+1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Sign In**.
 2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
-3. Turn on **Allow Buddy to answer** in OSRS AI Buddy settings when you are ready to send questions.
+3. Once connected, Buddy is ready to answer; no separate enable-requests switch is needed.
 4. Choose an available model next to Send; use Refresh list if needed.
-5. Ask a question. On Windows, Keep ChatGPT connected is enabled by default: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
+5. Ask a question. On Windows, ChatGPT sign-in is remembered automatically: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
 
-There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; **Manage ChatGPT usage** opens your usage settings.
+There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; usage limits can be managed in [ChatGPT settings](https://chatgpt.com/settings/usage).
 
 Your session renews automatically when needed. Signing out clears the saved session. Access revocation or expiry of the renewable session can still require another sign-in. Persistent sign-in currently supports Windows; other operating systems retain session-only behavior.
 
 ## Settings
 
-- **Getting started:** allow Buddy to answer and keep ChatGPT connected (on by default). Connect and choose a model in the sidebar.
-- **Your adventurer:** share a character overview, achievements/collections, or bank/inventory/gear separately.
+Open **⋯ → Configurations** in Buddy to jump directly to its RuneLite settings.
+
+- **Account context:** character overview, achievements/collections, and bank/inventory/gear, each opt-in.
 - **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
-- **Conversation:** advice preferences, local chat history and the Ask Buddy shortcut.
-- **Reply delivery:** game-chat copies, character limit and reply alerts.
+- **History & alerts:** keep conversations on this PC and choose reply notifications.
+
+The chat menu contains Rename, Clear, Delete, Configurations, ChatGPT connection status, and Sign In or Log Out. Clicking a chat title returns to the conversation inbox. New conversations start with the plus button. Empty inboxes show a muted, recessed gray message. Replies stay in Buddy's panel; game-chat mirroring and the Ask shortcut are removed. ChatGPT sign-in is always remembered on Windows, with encrypted local storage.
 
 See [PRIVACY.md](PRIVACY.md) for what leaves your PC and how sign-in is stored.
 

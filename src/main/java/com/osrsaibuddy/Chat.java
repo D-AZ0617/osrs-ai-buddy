@@ -63,6 +63,7 @@ class Chat
 	}
 
 	final String id;
+    long createdAt = System.currentTimeMillis();
 	String name;
 	/** Whether {@link #name} was made up by us, so the first message can replace it with something better. */
 	boolean defaultName = true;
