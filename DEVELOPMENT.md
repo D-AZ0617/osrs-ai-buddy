@@ -15,3 +15,5 @@ Responses use the public endpoint, store:false and stream:true. Never configure 
 
 Do not commit credential files, personal settings, game login credentials, chats, build logs from signed-in clients, or screenshots containing account information. Keep the original BSD attribution.
 
+
+Account context: AccountContextTools offers opt-in paginated progress and WOM tools. AccountProgress reads only on the client thread and passively observes collection transmission; AccountFlags is an explicit RuneLite 1.13.2 allowlist. Update the allowlist against generated game constants after game changes. WomClient is GET-only, fixed-host, bounded, rate spaced and briefly cached. A generation check rejects queued requests after account changes/opt-out; identity and settings are checked again at delivery. Test both gates and incomplete-data semantics before extending any dataset.

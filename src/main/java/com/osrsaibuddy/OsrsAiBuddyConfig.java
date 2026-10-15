@@ -98,6 +98,16 @@ public interface OsrsAiBuddyConfig extends Config
 		return false;
 	}
 
+    @ConfigItem(keyName = "shareProgress", name = "Share extended progress", section = PRIVACY, position = 3,
+        description = "Let Buddy read skills/XP, quest states, combat achievements, known collection-log items and completion sections, prayer/Slayer unlocks and selected currencies. Collection items are partial until supplied by the game. Off by default.",
+        warning = "This feature submits your account progress, achievements, collection-log information and unlocks to OpenAI, a third-party server not controlled or verified by RuneLite developers.")
+    default boolean shareProgress() { return false; }
+
+    @ConfigItem(keyName = "shareWom", name = "Share Wise Old Man data", section = PRIVACY, position = 4,
+        description = "Read your existing public WOM profile, boss kills, activities, XP, gains, records and achievements when needed. Historical data can be stale. Does not create tracking or update your profile. Off by default.",
+        warning = "This feature submits your logged-in character name and IP address to Wise Old Man, and the retrieved account statistics, achievements, history and public group/competition information to OpenAI. These are third-party servers not controlled or verified by RuneLite developers.")
+    default boolean shareWom() { return false; }
+
 	@ConfigItem(
 		keyName = "rememberChats",
 		name = "Save chat history",

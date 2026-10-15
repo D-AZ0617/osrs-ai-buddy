@@ -2,7 +2,7 @@
 
 ## Off by default
 
-AI requests, character sharing, and item sharing start disabled. Signing in requires an explicit Continue with ChatGPT action. Loading an existing sign-in at startup only reads local storage. Model discovery and inference require Enable AI requests. Turning requests off cancels outstanding requests.
+AI requests, character sharing, item sharing, extended progress sharing and WOM sharing start disabled. Signing in requires an explicit Continue with ChatGPT action. Loading an existing sign-in at startup only reads local storage. Model discovery and inference require Enable AI requests. Turning requests off cancels outstanding requests.
 
 ## OpenAI
 
@@ -13,6 +13,14 @@ When you send a question, your text, relevant chat history or its summary, syste
 ## Optional game information
 
 Share character details permits character name, account type, levels, quest progress and, when requested, Slayer and achievement-diary data. Share items and gear permits equipment, inventory and the last observed bank contents with prices. Both settings start off. Each look-up is listed with the corresponding reply. Character and item access require being logged in to the game. No game-login credentials are read or transmitted by this plugin.
+
+## Extended progress and Wise Old Man
+
+**Share extended progress** permits on-demand skills/XP, quest states, combat achievements, collection totals/section flags and observed obtained items, prayer/Slayer unlocks, and selected currencies to go to OpenAI. Data is read on the client thread. Collection items are passively observed only while both AI requests and extended sharing are enabled, kept in memory, and cleared on account transitions, opt-out or shutdown. Collection coverage is partial; unseen items remain unknown. No game input or UI navigation is generated to collect it.
+
+**Share Wise Old Man data** permits your current logged-in character name and IP address to go to api.wiseoldman.net, and results to OpenAI as context. Available data includes public skill/boss/activity statistics, XP gains, achievements/progress, records, public competition/group membership and name changes. No other player can be selected by a model tool. Calls are read-only GET requests: Buddy never creates tracking, refreshes a profile or uploads your local progress to WOM. WOM data may already be public and may be stale, missing or unranked. WOM's privacy policy applies.
+
+WOM requests use no OpenAI authorization, cookies or API keys; redirects are disabled. Responses are bounded and cached in memory for up to two minutes (32 entries maximum). Uncached requests are spaced at least 3.1 seconds apart; rate-limit responses impose a one-minute cooldown. Turning WOM/AI sharing off, account transitions or shutdown cancels in-flight calls and clears the cache. Queued calls and result delivery recheck account identity and opt-in. Neither game progress nor WOM responses are independently written to disk, but information already used in saved chats remains in chat history. Turning sharing off cannot retract data already sent or remove it from existing chat messages; start a fresh chat to exclude prior shared context.
 
 ## OSRS Wiki
 

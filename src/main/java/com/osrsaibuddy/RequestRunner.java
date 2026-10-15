@@ -72,10 +72,19 @@ final class RequestRunner
 		final boolean shareCharacter;
 		final boolean shareItems;
 		final boolean wikiLookups;
+        final boolean shareProgress;
+        final boolean shareWom;
 
 		Setup(ChatApi api, String model, String system, boolean shareCharacter, boolean shareItems, boolean wikiLookups)
 		{
-			this.api = api;
+			this(api, model, system, shareCharacter, shareItems, wikiLookups, false, false);
+        }
+
+        Setup(ChatApi api, String model, String system, boolean shareCharacter, boolean shareItems, boolean wikiLookups, boolean shareProgress, boolean shareWom)
+        {
+            this.shareProgress = shareProgress;
+            this.shareWom = shareWom;
+            this.api = api;
 			this.model = model;
 			this.system = system;
 			this.shareCharacter = shareCharacter;

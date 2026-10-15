@@ -20,7 +20,9 @@ final class ToolBox implements ChatApi.ToolRunner
 	/** What the tools of every request are made from: the plugin's own, or a test's stand-ins. */
 	static final class Parts
 	{
-		private final WikiClient wiki;
+		interface Extras { AccountContextTools create(RequestRunner.Setup setup, BooleanSupplier wanted, Consumer<String> activity); }
+        Extras extras;
+        private final WikiClient wiki;
 		private final LookupTools.Prices prices;
 		private final GameDataTools.Game game;
 		private final Consumer<Runnable> clientThread;
@@ -57,11 +59,14 @@ final class ToolBox implements ChatApi.ToolRunner
 				() -> setup.shareItems && shareItems.getAsBoolean(),
 				() -> setup.shareCharacter && shareCharacter.getAsBoolean(),
 				activity);
-			return new ToolBox(lookups, gameData, started);
+			ToolBox box = new ToolBox(lookups, gameData, started);
+            if (extras != null) { box.extra = extras.create(setup, wanted, activity); }
+            return box;
 		}
 	}
 
-	private final LookupTools lookups;
+	private AccountContextTools extra;
+    private final LookupTools lookups;
 	private final GameDataTools gameData;
 	/** Told when a call starts, on the provider's thread, so the panel can say it's looking things up. */
 	private final Runnable started;
@@ -77,6 +82,7 @@ final class ToolBox implements ChatApi.ToolRunner
 	{
 		List<ChatApi.ToolSpec> specs = new ArrayList<>(lookups.specs());
 		specs.addAll(gameData.specs());
+        if (extra != null) { specs.addAll(extra.specs()); }
 		return specs;
 	}
 
@@ -104,7 +110,11 @@ final class ToolBox implements ChatApi.ToolRunner
 		{
 			lookups.run(name, input, done);
 		}
-		else if (GameDataTools.handles(name))
+		else if (extra != null && AccountContextTools.handles(name))
+        {
+            extra.run(name, input, done);
+        }
+        else if (GameDataTools.handles(name))
 		{
 			gameData.run(name, input, done);
 		}
