@@ -24,13 +24,15 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
 3. Turn on **Allow Buddy to answer** in OSRS AI Buddy settings when you are ready to send questions.
 4. Choose an available model next to Send; use Refresh list if needed.
-5. Ask a question. Sign in again after restarting RuneLite; tokens are kept in memory only. Enable Share character overview only if you want personalized advice based on account progress.
+5. Ask a question. On Windows, Keep ChatGPT connected is enabled by default: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
 
 There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; **Manage ChatGPT usage** opens your usage settings.
 
+Your session renews automatically when needed. Signing out clears the saved session. Access revocation or expiry of the renewable session can still require another sign-in. Persistent sign-in currently supports Windows; other operating systems retain session-only behavior.
+
 ## Settings
 
-- **Getting started:** allow Buddy to answer; connect and choose a model in the sidebar.
+- **Getting started:** allow Buddy to answer and keep ChatGPT connected (on by default). Connect and choose a model in the sidebar.
 - **Your adventurer:** share a character overview, achievements/collections, or bank/inventory/gear separately.
 - **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
 - **Conversation:** advice preferences, local chat history and the Ask Buddy shortcut.

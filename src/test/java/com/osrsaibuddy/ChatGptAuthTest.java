@@ -109,7 +109,7 @@ public class ChatGptAuthTest
 		assertTrue(ChatGptAuth.hasPermission(tokens));
 		assertEquals("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", ChatGptAuth.challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"));
 	}
-	@Test public void browserCallbackPkceMemoryOnlyTokensRefreshAndSignOut() throws Exception
+	@Test public void browserCallbackPkcePersistedSessionRefreshAndSignOut() throws Exception
 	{
 		MemoryStore store = new MemoryStore();
 		KeyPair pair = keys();
@@ -182,10 +182,15 @@ public class ChatGptAuthTest
 			assertEquals("test-access", auth.accessToken());
 			assertEquals("refresh_token", grant.get());
 			assertEquals("oaiapp_test", ChatGptAuth.text(store.record, "client_id"));
-			assertFalse(store.record.has("access_token"));
-			assertFalse(store.record.has("refresh_token"));
-			assertFalse(store.record.has("id_token"));
-			CompletableFuture<String> signedOut = new CompletableFuture<>();
+			assertTrue(store.record.has("access_token"));
+			assertTrue(store.record.has("refresh_token"));
+			assertTrue(store.record.has("id_token"));
+			auth.close();
+            auth = new ChatGptAuth(http, gson, store);
+            CompletableFuture<String> reloaded = new CompletableFuture<>(); auth.load(reloaded::complete);
+            assertNull(reloaded.get(5, TimeUnit.SECONDS)); assertTrue(auth.connected());
+            assertEquals("test-access", auth.accessToken());
+            CompletableFuture<String> signedOut = new CompletableFuture<>();
 			auth.signOut(signedOut::complete);
 			assertNull(signedOut.get(5, TimeUnit.SECONDS));
 			assertFalse(auth.connected());

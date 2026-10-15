@@ -11,6 +11,7 @@ public class ProviderSetupTest
     {
         OsrsAiBuddyConfig config = new OsrsAiBuddyConfig() { };
         assertFalse(config.aiRequests()); assertFalse(config.sendCharacter()); assertFalse(config.shareItems());
+        assertTrue(config.rememberChatgpt());
         assertEquals("osrs-ai-buddy", OsrsAiBuddyConfig.GROUP);
         assertEquals("", config.chatgptPlanModel());
         ProviderSetup setup = new ProviderSetup(config, null);
@@ -27,7 +28,7 @@ public class ProviderSetupTest
     }
     @Test public void onlyProjectRelevantSettingsAreExposed()
     {
-        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("aiRequests", "instructions", "wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "rememberChats", "shareProgress", "shareWom", "notifyOnDone", "echoToChat", "echoMaxChars", "askHotkey"));
+        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("aiRequests", "instructions", "wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "rememberChats", "rememberChatgpt", "shareProgress", "shareWom", "notifyOnDone", "echoToChat", "echoMaxChars", "askHotkey"));
         java.util.Set<String> actual = new java.util.HashSet<>();
         for (java.lang.reflect.Method method : OsrsAiBuddyConfig.class.getDeclaredMethods())
         {

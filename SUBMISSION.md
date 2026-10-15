@@ -7,9 +7,9 @@ Configuration and storage namespace: osrs-ai-buddy
 Packaging: standard (no extra production dependencies)
 Icon: 48x48 root icon.png, 32x32 sidebar resource, PNG with transparency
 Bytecode target: Java 11
-Local verification: 352 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
+Local verification: 358 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
 
-The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and memory-only token behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
+The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and Windows-protected persistent session behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
 
 The public source package contains no sign-in credentials, game login data, personal chat history, user configuration, build logs, or compiled JARs. Inherited BSD attribution is in LICENSE and NOTICE.md.
 
@@ -22,3 +22,5 @@ The Plugin Hub recommends contributing to existing plugins when appropriate. Thi
 WOM/account-context expansion: verified 352 tests with no failures, errors or skipped tests. Added tests cover opt-in gates before reads and delivery, account changes, in-flight and queued WOM cancellation, read-only endpoint encoding, cache isolation, missing/unranked data, redirects, response-size caps, rate cooldown, pagination and partial collection coverage. All network tests use local stand-ins; live WOM behavior and in-game collection coverage still need user testing. Hub submission remains paused.
 
 Collection-page fix: item-level obtained/missing/quantity snapshots are accepted only when visible header totals agree with the complete item grid. Page names and observation timestamps support targeted queries; unvisited coverage is unknown. Another player’s house adventure-log view is excluded. User confirmed the earlier live RuneLite/WOM data tools work in game; this newer page-reader build still needs an in-game check.
+
+Default remembered sign-in: Windows current-user DPAPI through the existing RuneLite JNA runtime, no custom native library or new production dependency. Tokens are encrypted before scoped atomic Filepath writes. Cross-instance restore, token rotation, opt-out removal, sign-out cleanup, corrupt encrypted data, plaintext rejection and encryption failures are covered by tests with synthetic credentials. Cross-platform secure-store backends are not implemented; non-Windows sessions remain memory-only with a notice. Review this native OS protection capability explicitly before Hub acceptance.

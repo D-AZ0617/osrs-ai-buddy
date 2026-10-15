@@ -27,10 +27,15 @@ public interface OsrsAiBuddyConfig extends Config
     @ConfigSection(name = "Reply delivery", description = "Control chatbox copies and reply alerts", position = 4, closedByDefault = true)
     String GAME_CHAT = "chat";
 
+    @ConfigItem(keyName = "rememberChatgpt", name = "Keep ChatGPT connected", section = GENERAL, position = 2,
+        description = "Remember your authorized ChatGPT session across restarts using encryption tied to your Windows account. On by default. Turning this off removes the saved session but keeps the current connection until Buddy closes. Other operating systems currently use session-only sign-in.",
+        warning = "Stores your ChatGPT authorization locally, encrypted with Windows account protection. Anyone able to run software as your Windows user may access that session. Sign out from Buddy's menu to disconnect and clear the saved session.")
+    default boolean rememberChatgpt() { return true; }
+
 	@ConfigItem(
 		keyName = "aiRequests",
 		name = "Allow Buddy to answer",
-		description = "Allow questions, model discovery and permitted look-ups using your ChatGPT plan. Connect through the sidebar menu first. Sign in again after restarting RuneLite or re-enabling Buddy.",
+		description = "Allow questions, model discovery and permitted look-ups using your ChatGPT plan. Connect through the sidebar menu first. Keep ChatGPT connected remembers sign-in on Windows by default.",
 		warning = "This feature submits your IP address and the messages you type to OpenAI, and (with \"Allow OSRS Wiki searches\", on by default) the search words and page titles the assistant looks up to the OSRS Wiki: 3rd-party servers not controlled or verified by RuneLite developers.",
 		section = GENERAL,
 		position = 0

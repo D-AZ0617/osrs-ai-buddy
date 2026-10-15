@@ -17,6 +17,102 @@ public class ChatGptRegistrationStoreTest
 		constructor.setAccessible(true);
 		return constructor.newInstance(directory, directory);
 	}
+
+    private static JsonObject session()
+    {
+        JsonObject value = new JsonObject(); value.addProperty("client_id", "oaiapp_test");
+        value.addProperty("access_token", "dummy-access-credential"); value.addProperty("refresh_token", "dummy-refresh-credential");
+        value.addProperty("id_token", "dummy-id-credential"); value.addProperty("scope", ChatGptAuth.DIRECT);
+        value.addProperty("expires_at", System.currentTimeMillis() / 1000 + 3600); return value;
+    }
+
+    @Test public void windowsEncryptedSessionSurvivesStoreRestartWithoutPlaintextTokens() throws Exception
+    {
+        org.junit.Assume.assumeTrue(SessionProtection.windows().available());
+        Path directory = Files.createTempDirectory("buddy-protected-session"); Filepath folder = scoped(directory);
+        try (StoreCloser ignored = new StoreCloser(new ChatGptRegistrationStore(() -> folder, new Gson())))
+        { ignored.store.open(); ignored.store.save(session()); }
+        String disk = Files.readString(directory.resolve("registration.json"));
+        assertFalse(disk.contains("dummy-access-credential")); assertFalse(disk.contains("dummy-refresh-credential"));
+        assertFalse(disk.contains("dummy-id-credential")); assertTrue(disk.contains("windowsDpapiSession"));
+        ChatGptRegistrationStore restored = new ChatGptRegistrationStore(() -> folder, new Gson());
+        try { assertEquals("dummy-refresh-credential", ChatGptAuth.text(restored.open(), "refresh_token")); }
+        finally { restored.close(); }
+    }
+
+    private static final class StoreCloser implements AutoCloseable
+    {
+        final ChatGptRegistrationStore store;
+        StoreCloser(ChatGptRegistrationStore store) { this.store = store; }
+        public void close() throws Exception { store.close(); }
+    }
+
+    @Test public void optingOutRemovesSavedTokensWhileKeepingRegistration() throws Exception
+    {
+        org.junit.Assume.assumeTrue(SessionProtection.windows().available());
+        Path directory = Files.createTempDirectory("buddy-session-optout"); Filepath folder = scoped(directory);
+        java.util.concurrent.atomic.AtomicBoolean remember = new java.util.concurrent.atomic.AtomicBoolean(true);
+        ChatGptRegistrationStore store = new ChatGptRegistrationStore(() -> folder, new Gson(), remember::get);
+        try
+        {
+            store.open(); store.save(session()); remember.set(false); store.save(session());
+            assertFalse(Files.readString(directory.resolve("registration.json")).contains("windowsDpapiSession"));
+        } finally { store.close(); }
+        remember.set(true);
+        try { JsonObject restored = store.open(); assertFalse(restored.has("access_token")); assertEquals("oaiapp_test", ChatGptAuth.text(restored, "client_id")); }
+        finally { store.close(); }
+    }
+
+    @Test public void forgedOrDamagedProtectedSessionIsNotRestored() throws Exception
+    {
+        org.junit.Assume.assumeTrue(SessionProtection.windows().available());
+        Path directory = Files.createTempDirectory("buddy-session-damaged"); Filepath folder = scoped(directory);
+        JsonObject file = ChatGptAuth.registrationOnly(session()); file.addProperty("windowsDpapiSession", "broken");
+        Files.writeString(directory.resolve("registration.json"), file.toString());
+        ChatGptRegistrationStore store = new ChatGptRegistrationStore(() -> folder, new Gson());
+        try { assertFalse(store.open().has("access_token")); assertNotNull(store.notice()); }
+        finally { store.close(); }
+    }
+
+    @Test public void legacyPlaintextTokensAreNeverRestored() throws Exception
+    {
+        Path directory = Files.createTempDirectory("buddy-session-legacy"); Filepath folder = scoped(directory);
+        Files.writeString(directory.resolve("registration.json"), session().toString());
+        ChatGptRegistrationStore store = new ChatGptRegistrationStore(() -> folder, new Gson());
+        try { assertFalse(store.open().has("access_token")); }
+        finally { store.close(); }
+    }
+
+    @Test public void protectedTokensCannotBeMixedWithAnotherRegistration() throws Exception
+    {
+        org.junit.Assume.assumeTrue(SessionProtection.windows().available());
+        Path directory = Files.createTempDirectory("buddy-session-binding"); Filepath folder = scoped(directory);
+        ChatGptRegistrationStore store = new ChatGptRegistrationStore(() -> folder, new Gson());
+        try { store.open(); store.save(session()); } finally { store.close(); }
+        Path file = directory.resolve("registration.json");
+        JsonObject record = new Gson().fromJson(Files.readString(file), JsonObject.class);
+        record.addProperty("client_id", "different-registration"); Files.writeString(file, record.toString());
+        try { assertFalse(store.open().has("access_token")); assertNotNull(store.notice()); }
+        finally { store.close(); }
+    }
+
+    @Test public void encryptionFailureDoesNotWritePlaintextOrReplaceExistingSession() throws Exception
+    {
+        Path directory = Files.createTempDirectory("buddy-session-failure"); Filepath folder = scoped(directory);
+        SessionProtection broken = new SessionProtection() {
+            public boolean available() { return true; }
+            public byte[] protect(byte[] bytes) throws java.io.IOException { throw new java.io.IOException("test"); }
+            public byte[] unprotect(byte[] bytes) throws java.io.IOException { throw new java.io.IOException("test"); }
+        };
+        ChatGptRegistrationStore store = new ChatGptRegistrationStore(() -> folder, new Gson(), () -> true, broken);
+        try
+        {
+            store.open(); store.save(ChatGptAuth.registrationOnly(session()));
+            String before = Files.readString(directory.resolve("registration.json"));
+            try { store.save(session()); fail(); } catch (java.io.IOException expected) { }
+            assertEquals(before, Files.readString(directory.resolve("registration.json")));
+        } finally { store.close(); }
+    }
 	@Test public void scopedRegistrationRoundTripsAndReleasesItsLock() throws Exception
 	{
 		Path directory = Files.createTempDirectory("buddy-registration-test");

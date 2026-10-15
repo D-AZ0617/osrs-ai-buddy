@@ -218,12 +218,13 @@ public class OsrsAiBuddyPlugin extends Plugin
 			.callTimeout(20, TimeUnit.SECONDS)
 			.build();
 
-		chatgpt = new ChatGptAuth(testHttp, gson, new ChatGptRegistrationStore(() -> getPluginDirectory().joinSegment("chatgpt"), gson));
+		chatgpt = new ChatGptAuth(testHttp, gson, new ChatGptRegistrationStore(() -> getPluginDirectory().joinSegment("chatgpt"), gson, config::rememberChatgpt));
 		provider = new ProviderSetup(config, chatgpt);
 		ChatGptAuth loading = chatgpt;
 		loading.load(problem -> SwingUtilities.invokeLater(() -> {
-			if (chatgpt != loading || panel == null) { return; }
+			if (chatgpt != loading) { return; }
 			chatgptStorageProblem = problem;
+            if (panel == null) { return; }
 			panel.refreshAll();
 			listModels();
 		}));
@@ -318,7 +319,11 @@ public class OsrsAiBuddyPlugin extends Plugin
 					stopAll("Stopped: AI requests were turned off.");
 					tester.stop();
 				}
-				if ("rememberChats".equals(e.getKey()))
+				if ("rememberChatgpt".equals(e.getKey()) && chatgpt != null)
+                {
+                    chatgpt.saveSessionPreference(problem -> SwingUtilities.invokeLater(() -> { if (problem != null && panel != null) { javax.swing.JOptionPane.showMessageDialog(panel, problem, "ChatGPT sign-in", javax.swing.JOptionPane.INFORMATION_MESSAGE); } }));
+                }
+                if ("rememberChats".equals(e.getKey()))
 				{
 					saver.apply();
 				}
@@ -728,7 +733,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override public void signInChatgpt()
 		{
 			if (chatgpt == null) { return; }
-			if (chatgptStorageProblem != null) { chatgptMessage(chatgptStorageProblem); return; }
+			if (chatgptStorageProblem != null) { chatgptMessage(chatgptStorageProblem); if (!chatgpt.storageReady()) { return; } chatgptStorageProblem = null; }
 			ChatGptAuth signingIn = chatgpt;
 			signingIn.signIn(url -> SwingUtilities.invokeLater(() -> {
 				if (chatgpt == signingIn) { net.runelite.client.util.LinkBrowser.browse(url); }

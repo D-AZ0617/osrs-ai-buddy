@@ -63,13 +63,13 @@ final class ChatGptAuth
 		worker.execute(() -> {
 			try
 			{
-				JsonObject registration = registrationOnly(store.open());
+				JsonObject registration = sessionRecord(store.open());
 				host = text(registration, "ext_agent_host_id");
 				if (host.isEmpty()) { host = "urn:uuid:" + UUID.randomUUID(); }
 				if (!host.matches("urn:uuid:[0-9a-fA-F-]{36}")) { throw new IOException("Invalid host ID"); }
 				profile = registration.has("client_id") ? registration : null;
 				persist(registration);
-				done.accept(null);
+				done.accept(store.notice());
 			}
 			catch (Exception e)
 			{
@@ -85,6 +85,8 @@ final class ChatGptAuth
 		JsonObject p = profile;
 		return p != null && !text(p, "access_token").isEmpty() && hasPermission(p);
 	}
+
+    boolean storageReady() { return host != null && !closed; }
 
 	static boolean hasPermission(JsonObject p)
 	{
@@ -354,11 +356,19 @@ final class ChatGptAuth
 		tokens.addProperty("expires_at", System.currentTimeMillis() / 1000 + seconds);
 	}
 
-	/** Only non-secret registration metadata reaches disk. Access, refresh and ID tokens stay in memory. */
+    void saveSessionPreference(Consumer<String> done)
+    {
+        worker.execute(() -> {
+            try { synchronized (this) { JsonObject p = profile; persist(p == null ? new JsonObject() : p); } done.accept(store.notice()); }
+            catch (IOException e) { done.accept("Couldn't update saved ChatGPT sign-in. Sign out to clear it, or reconnect after checking local storage."); }
+        });
+    }
+
+	/** The store protects tokens before writing; no credentials enter RuneLite configuration/profile sync. */
 	private synchronized void persist(JsonObject value) throws IOException
 	{
 		if (closed) { throw new IOException("Closed"); }
-		JsonObject metadata = registrationOnly(value);
+		JsonObject metadata = sessionRecord(value);
 		metadata.addProperty("ext_agent_host_id", host);
 		store.save(metadata);
 	}
@@ -374,10 +384,19 @@ final class ChatGptAuth
 		return metadata;
 	}
 
+    static JsonObject sessionRecord(JsonObject value)
+    {
+        JsonObject record = registrationOnly(value);
+        for (String field : new String[]{"access_token", "refresh_token", "id_token", "scope", "token_type", "expires_at"})
+        { if (value.has(field) && value.get(field).isJsonPrimitive()) { record.add(field, value.get(field).deepCopy()); } }
+        return record;
+    }
+
 	interface RegistrationStore
 	{
 		JsonObject open() throws Exception;
 		void save(JsonObject metadata) throws IOException;
 		void close() throws IOException;
+        default String notice() { return null; }
 	}
 }

@@ -4,7 +4,7 @@ Build: gradlew.bat build (Windows), ./gradlew build (macOS/Linux). Use JDK 11, 1
 
 Main class: com.osrsaibuddy.OsrsAiBuddyPluginTest. Plugin class: com.osrsaibuddy.OsrsAiBuddyPlugin. Configuration group and data-directory name: osrs-ai-buddy.
 
-Tests cover OAuth callbacks, identity verification, memory-only tokens and scoped registration storage, renewal/revocation, incomplete and headerless streams, final output items, namespaced tools, sharing gates, chat persistence, chat UI and command parsing. All automated tests use loopback stand-ins. Removed-provider tests were removed along with those implementations; ChatGPT-only configuration has its own tests.
+Tests cover OAuth callbacks, identity verification, Windows-protected persistent sessions, opt-out, corrupt-session recovery and scoped registration storage, renewal/revocation, incomplete and headerless streams, final output items, namespaced tools, sharing gates, chat persistence, chat UI and command parsing. All automated tests use loopback stand-ins. Removed-provider tests were removed along with those implementations; ChatGPT-only configuration has its own tests.
 
 Sign-in follows the official OpenAI documentation:
 - https://developers.openai.com/siwc/token-sharing-open-source/sign-in
@@ -17,3 +17,5 @@ Do not commit credential files, personal settings, game login credentials, chats
 
 
 Account context: AccountContextTools offers opt-in paginated progress and WOM tools. AccountProgress reads only on the client thread and passively observes collection transmission; AccountFlags is an explicit RuneLite 1.13.2 allowlist. Update the allowlist against generated game constants after game changes. WomClient is GET-only, fixed-host, bounded, rate spaced and briefly cached. A generation check rejects queued requests after account changes/opt-out; identity and settings are checked again at delivery. Test both gates and incomplete-data semantics before extending any dataset.
+
+Remembered ChatGPT sign-in defaults on. SessionProtection uses current-user DPAPI via RuneLite’s existing JNA runtime (UI forbidden; never machine-wide). ChatGptRegistrationStore atomically saves non-secret metadata and an encrypted allowlisted session together, binds decrypted credentials to their registration metadata, and rejects legacy plaintext token fields. Refreshes stay serialized under the registration lock. On non-Windows systems, session-only behavior remains with an explicit notice. Do not introduce plaintext fallback storage.
