@@ -90,7 +90,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 
 	@Inject
 	private ClientToolbar clientToolbar;
-    @Inject private net.runelite.client.plugins.PluginManager pluginManager;
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
@@ -303,11 +302,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 					return;
 				}
 				// Sharing and local-history changes apply immediately.
-
-                if ("rememberChats".equals(e.getKey()))
-				{
-					saver.apply();
-				}
 				// Refresh the model picker after settings change.
 				listModels();
 				panel.refreshAll();
@@ -701,25 +695,54 @@ public class OsrsAiBuddyPlugin extends Plugin
 	}
 
 	/** What {@link OsrsAiBuddyPanel} needs from the plugin. On the EDT. */
-	private final class Panel implements OsrsAiBuddyPanel.Host
-	{
-        @Override public void openConfigurations()
-        {
-            // Reuse RuneLite's public overlay-config navigation handler; no overlay is displayed or registered.
-            net.runelite.client.ui.overlay.Overlay target = new net.runelite.client.ui.overlay.Overlay(OsrsAiBuddyPlugin.this) {
-                @Override public java.awt.Dimension render(java.awt.Graphics2D graphics) { return null; }
-            };
-            for (Plugin installed : pluginManager.getPlugins())
+    private void openQuickAccess(String action)
+    {
+        executor.execute(() -> {
+            try
             {
-                if (installed instanceof net.runelite.client.plugins.config.ConfigPlugin)
-                {
-                    ((net.runelite.client.plugins.config.ConfigPlugin) installed).onOverlayMenuClicked(new net.runelite.client.events.OverlayMenuClicked(
-                        new net.runelite.client.ui.overlay.OverlayMenuEntry(net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG, "Configure", "OSRS AI Buddy"), target));
-                    return;
-                }
+                java.security.CodeSource source = OsrsAiBuddyPlugin.class.getProtectionDomain().getCodeSource();
+                new BuddyQuickAccess(this::getPluginDirectory, source == null ? null : source.getLocation().toURI(),
+                    net.runelite.client.util.LinkBrowser::open, net.runelite.client.util.LinkBrowser::browse).open(action);
             }
-            javax.swing.JOptionPane.showMessageDialog(panel, "RuneLite's configuration panel is unavailable.", "Configurations", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            catch (Exception failure)
+            {
+                SwingUtilities.invokeLater(() -> {
+                    if (panel != null) { javax.swing.JOptionPane.showMessageDialog(panel,
+                        failure.getMessage() == null ? "Couldn't open this shortcut." : failure.getMessage(),
+                        "Quick access", javax.swing.JOptionPane.INFORMATION_MESSAGE); }
+                });
+            }
+        });
+    }
+
+    private final class Panel implements OsrsAiBuddyPanel.Host
+	{
+        @Override public void openConfigurations() { panel.showConfigurations(); }
+        @Override public boolean configurationValue(String key)
+        {
+            switch (key)
+            {
+                case "sendCharacter": return config.sendCharacter();
+                case "shareProgress": return config.shareProgress();
+                case "shareItems": return config.shareItems();
+                case "wikiLookups": return config.wikiLookups();
+                case "shareWom": return config.shareWom();
+                case "notifyOnDone": return config.notifyOnDone().isEnabled();
+                default: return false;
+            }
         }
+        @Override public void changeConfiguration(String key, boolean enabled)
+        {
+            switch (key)
+            {
+                case "sendCharacter": case "shareProgress": case "shareItems": case "wikiLookups": case "shareWom":
+                    configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, key, enabled); break;
+                case "notifyOnDone":
+                    configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, key, config.notifyOnDone().withEnabled(enabled)); break;
+                default: throw new IllegalArgumentException("Unknown setting");
+            }
+        }
+        @Override public void openShortcut(String action) { openQuickAccess(action); }
 
 		@Override public String chatgptStatus()
 		{
@@ -984,7 +1007,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override
 		public boolean rememberChats()
 		{
-			return config.rememberChats();
+			return true;
 		}
 
 		@Override

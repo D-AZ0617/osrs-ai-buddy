@@ -17,7 +17,7 @@ public interface OsrsAiBuddyConfig extends Config
     @ConfigSection(name = "Knowledge sources", description = "Choose external sources for game knowledge and account history", position = 1, closedByDefault = true)
     String KNOWLEDGE = "knowledge";
 
-    @ConfigSection(name = "History & alerts", description = "Choose local history and reply notifications", position = 2, closedByDefault = true)
+    @ConfigSection(name = "Notifications", description = "Choose reply notification behavior", position = 2, closedByDefault = true)
     String CONVERSATION = "conversation";
 
 	@ConfigItem(
@@ -80,18 +80,6 @@ public interface OsrsAiBuddyConfig extends Config
         description = "Read your existing public WOM profile, boss kills, activities, XP, gains, records and achievements when needed. Historical data can be stale. Does not create tracking or update your profile. Off by default.",
         warning = "This feature submits your logged-in character name and IP address to Wise Old Man, and the retrieved account statistics, achievements, history and public group/competition information to OpenAI. These are third-party servers not controlled or verified by RuneLite developers.")
     default boolean shareWom() { return false; }
-
-	@ConfigItem(
-		keyName = "rememberChats",
-		name = "Keep conversations on this PC",
-		description = "Keep your chats when RuneLite closes, saved on this computer in .runelite/plugin-data/osrs-ai-buddy (the latest 200 messages of each, and older ones still sent to the assistant). Turning this off deletes the saved copy; chats then last only while RuneLite is open.",
-		section = CONVERSATION,
-		position = 1
-	)
-	default boolean rememberChats()
-	{
-		return true;
-	}
 
 	@ConfigItem(
 		keyName = "notifyOnDone",

@@ -103,12 +103,17 @@ class OsrsAiBuddyPanel extends PluginPanel
 		default void signInChatgpt() { }
 		default void signOutChatgpt() { }
         default void openConfigurations() { }
+        default boolean configurationValue(String key) { return false; }
+        default void changeConfiguration(String key, boolean enabled) { }
+        default void openShortcut(String action) { }
 	}
 
 	private final Host host;
 
 	final FlatButton chatSelect = new FlatButton("Conversations", null, "Show conversations");
     private boolean inboxVisible = true;
+    private boolean configurationsVisible;
+    final BuddySettingsPanel settings;
     final JPanel inbox = new TranscriptPanel();
 	final FlatButton newChat = new FlatButton(null, new Glyph(Glyph.Shape.PLUS, 14), "New chat");
 	final FlatButton menu = new FlatButton(null, new Glyph(Glyph.Shape.MORE, 14),
@@ -140,6 +145,12 @@ class OsrsAiBuddyPanel extends PluginPanel
 	{
 		super(false);
 		this.host = host;
+        settings = new BuddySettingsPanel(new BuddySettingsPanel.Actions() {
+            public boolean value(String key) { return host.configurationValue(key); }
+            public void change(String key, boolean enabled) { host.changeConfiguration(key, enabled); }
+            public boolean confirm(String warning) { return OsrsAiBuddyPanel.this.confirm("Share account information", warning); }
+            public void open(String action) { host.openShortcut(action); }
+        });
 		banner = new Banner(() ->
 		{
 			host.dismissNote();
@@ -215,6 +226,10 @@ class OsrsAiBuddyPanel extends PluginPanel
         inboxScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         inboxScroll.getVerticalScrollBar().setUnitIncrement(16);
         center.add(inboxScroll, "inbox");
+        JScrollPane settingsScroll = new JScrollPane(settings);
+        settingsScroll.setBorder(null); settingsScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        settingsScroll.getViewport().setBackground(PanelStyle.BACKGROUND); settingsScroll.getVerticalScrollBar().setUnitIncrement(16);
+        center.add(settingsScroll, "configurations");
 		JPanel middle = new JPanel(new GridBagLayout());
 		middle.setOpaque(false);
 		GridBagConstraints c = new GridBagConstraints();
@@ -275,7 +290,8 @@ class OsrsAiBuddyPanel extends PluginPanel
 		refreshChats();
 		refreshTranscript();
 		refreshStatus();
-        if (inboxVisible) { refreshInbox(); cards.show(center, "inbox"); composer.setVisible(false); }
+        if (configurationsVisible) { settings.refresh(); cards.show(center, "configurations"); composer.setVisible(false); }
+        else if (inboxVisible) { refreshInbox(); cards.show(center, "inbox"); composer.setVisible(false); }
 	}
 
 	/**
@@ -310,11 +326,12 @@ class OsrsAiBuddyPanel extends PluginPanel
 	private void refreshChats()
 	{
         Chat chat = host.currentChat();
-        chatSelect.setText(inboxVisible || chat == null ? "Conversations" : chat.name);
+        chatSelect.setText(configurationsVisible ? "Configurations" : inboxVisible || chat == null ? "Conversations" : chat.name);
     }
 
-    void showInbox() { inboxVisible = true; refreshAll(); }
-    void showConversation() { inboxVisible = false; composer.setVisible(true); shownKey = ""; refreshAll(); }
+    void showConfigurations() { configurationsVisible = true; refreshAll(); }
+    void showInbox() { configurationsVisible = false; inboxVisible = true; refreshAll(); }
+    void showConversation() { configurationsVisible = false; inboxVisible = false; composer.setVisible(true); shownKey = ""; refreshAll(); }
 
     private void refreshInbox()
     {
@@ -630,7 +647,8 @@ class OsrsAiBuddyPanel extends PluginPanel
 	/** A confirmation dialog whose text is shown as plain text, never HTML. */
 	private boolean confirm(String title, String text)
 	{
-		JTextArea area = new JTextArea(text);
+		JTextArea area = new JTextArea(text, Math.min(8, Math.max(2, text.length() / 36 + 1)), 36);
+        area.setLineWrap(true); area.setWrapStyleWord(true);
 		area.setEditable(false);
 		area.setOpaque(false);
 		area.setFont(PanelStyle.TEXT_FONT);

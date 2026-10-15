@@ -27,7 +27,7 @@ public class ProviderSetupTest
     }
     @Test public void onlyProjectRelevantSettingsAreExposed()
     {
-        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "rememberChats", "shareProgress", "shareWom", "notifyOnDone"));
+        java.util.Set<String> expected = new java.util.HashSet<>(Arrays.asList("wikiLookups", "chatgptPlanModel", "sendCharacter", "shareItems", "shareProgress", "shareWom", "notifyOnDone"));
         java.util.Set<String> actual = new java.util.HashSet<>();
         for (java.lang.reflect.Method method : OsrsAiBuddyConfig.class.getDeclaredMethods())
         {

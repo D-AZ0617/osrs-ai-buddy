@@ -193,6 +193,15 @@ public class OsrsAiBuddyPanelTest
 	}
 
 
+    @Test public void configurationsPageKeepsComposerHiddenAndTitleReturnsToInbox() throws Throwable
+    {
+        onEdt(() -> {
+            OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host); panel.showConversation(); panel.showConfigurations();
+            assertEquals("Configurations", panel.chatSelect.getText()); assertFalse(panel.composer.isVisible());
+            assertTrue(panel.settings.getParent().getParent().getParent().isVisible());
+            panel.chatSelect.doClick(); assertEquals("Conversations", panel.chatSelect.getText()); assertFalse(panel.composer.isVisible());
+        });
+    }
     @Test public void defaultScreenIsRecessedEmptyConversationList() throws Throwable
     {
         onEdt(() -> {

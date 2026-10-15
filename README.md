@@ -32,13 +32,14 @@ Your session renews automatically when needed. Signing out clears the saved sess
 
 ## Settings
 
-Open **⋯ → Configurations** in Buddy to jump directly to its RuneLite settings.
+Open **⋯ → Configurations** for Buddy’s settings page. Its controls use the same saved preferences as RuneLite’s standard plugin settings.
 
 - **Account context:** character overview, achievements/collections, and bank/inventory/gear, each opt-in.
 - **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
-- **History & alerts:** keep conversations on this PC and choose reply notifications.
+- **Notifications:** choose reply alerts.
+- **Quick access:** saved conversations, plugin data folder, installed plugin folder, local plugin information, and GitHub. Buy me a coffee is shown disabled while the donation link is being prepared.
 
-The chat menu contains Rename, Clear, Delete, Configurations, ChatGPT connection status, and Sign In or Log Out. Clicking a chat title returns to the conversation inbox. New conversations start with the plus button. Empty inboxes show a muted, recessed gray message. Replies stay in Buddy's panel; game-chat mirroring and the Ask shortcut are removed. ChatGPT sign-in is always remembered on Windows, with encrypted local storage.
+The chat menu contains Rename, Clear, Delete, Configurations, ChatGPT connection status, and Sign In or Log Out. Clicking a chat title returns to the conversation inbox. New conversations start with the plus button. Empty inboxes show a muted, recessed gray message. Replies stay in Buddy's panel; game-chat mirroring and the Ask shortcut are removed. ChatGPT sign-in is always remembered on Windows, with encrypted local storage. Conversations are always saved locally; the history checkbox has been removed. Use Clear or Delete to remove a conversation. Local shortcuts never directly open credential records or execute the plugin JAR.
 
 See [PRIVACY.md](PRIVACY.md) for what leaves your PC and how sign-in is stored.
 
