@@ -14,7 +14,7 @@ public class ProviderSetupTest
         assertEquals("osrs-ai-buddy", OsrsAiBuddyConfig.GROUP);
         assertEquals("", config.chatgptPlanModel());
         ProviderSetup setup = new ProviderSetup(config, null);
-        assertTrue(setup.connectionProblem().contains("Enable AI requests"));
+        assertTrue(setup.connectionProblem().contains("Allow Buddy to answer"));
         assertNull(setup.api(null, null)); assertNull(setup.testApi(null, null));
     }
     @Test public void enablingRequestsDoesNotBypassSignIn()

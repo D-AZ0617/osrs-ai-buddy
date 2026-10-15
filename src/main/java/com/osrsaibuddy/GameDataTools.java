@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * The tools that read the player's own account, offered only with the settings that share it: equipment, inventory
- * and bank with "Share items and gear", Slayer task and achievement diaries with "Share character details". Made for one
+ * and bank with "Share bank, inventory & gear", Slayer task and achievement diaries with "Share character overview". Made for one
  * reply: every call reads the game on the client thread, writes the answer up off it, and ends with one line for the
  * panel saying what was shared ("Shared your equipment"), told to {@code activity} just before the result goes back.
  */
@@ -33,7 +33,7 @@ final class GameDataTools implements ChatApi.ToolRunner
 	static final long READ_TIMEOUT_MILLIS = 5000;
 	private static final int MAX_SEARCH = 100;
 	private static final String FAILED = "Reading the game failed inside OSRS AI Buddy. Answer without it.";
-	private static final String ITEMS_SETTING = "Share items and gear";
+	private static final String ITEMS_SETTING = "Share bank, inventory & gear";
 	/**
 	 * How the lines for what was shared start: the panel names what was shared, from these, on the line over each reply
 	 * (see {@link PanelText#summary}).
@@ -44,7 +44,7 @@ final class GameDataTools implements ChatApi.ToolRunner
 	static final String UNSHARED = ", but didn't share it: the request had stopped";
 	/** Starts the line for what was read but never sent, in place of {@link #SHARED}. */
 	static final String READ = "Read your ";
-	private static final String CHARACTER_SETTING = "Share character details";
+	private static final String CHARACTER_SETTING = "Share character overview";
 
 	/**
 	 * Where the answers come from: {@link GameData} in the game, canned data in tests. Client thread only, and only
@@ -59,7 +59,7 @@ final class GameDataTools implements ChatApi.ToolRunner
 		GameData.Items inventory();
 
 		/**
-		 * Null when the bank hasn't been seen on this account since it could be: since OSRS AI Buddy, "Share items and gear" or
+		 * Null when the bank hasn't been seen on this account since it could be: since OSRS AI Buddy, "Share bank, inventory & gear" or
 		 * AI requests was last turned on.
 		 */
 		GameData.Bank bank();
@@ -247,7 +247,7 @@ final class GameDataTools implements ChatApi.ToolRunner
 		return new Outcome(line, ChatApi.ToolResult.ok(GameData.bankText(bank, search, now)));
 	}
 
-	/** Equipment, inventory and bank: only with "Share items and gear". */
+	/** Equipment, inventory and bank: only with "Share bank, inventory & gear". */
 	private <T> void readItems(Report report, String what, Supplier<T> read, Function<T, Outcome> write)
 	{
 		if (!shareItems.getAsBoolean())
@@ -258,7 +258,7 @@ final class GameDataTools implements ChatApi.ToolRunner
 		readThenWrite(report, what, read, write);
 	}
 
-	/** Slayer task and diaries: only with "Share character details". */
+	/** Slayer task and diaries: only with "Share character overview". */
 	private <T> void readCharacter(Report report, String what, Supplier<T> read, Function<T, Outcome> write)
 	{
 		if (!shareCharacter.getAsBoolean())

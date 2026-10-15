@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-/** What "Save chat history" keeps, and how it comes back. */
+/** What "Keep conversations on this PC" keeps, and how it comes back. */
 public class ChatStoreTest
 {
 	private final Gson gson = new Gson();

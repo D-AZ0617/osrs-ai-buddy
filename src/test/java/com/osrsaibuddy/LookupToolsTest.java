@@ -511,7 +511,7 @@ public class LookupToolsTest
 		allowed = false;
 		ChatApi.ToolResult r = run(tools(), "wiki_search", "{\"query\":\"whip\"}");
 		assertTrue(r.error);
-		assertEquals("Wiki look-ups are turned off in the OSRS AI Buddy settings. Answer without the Wiki.", r.content);
+		assertEquals("OSRS Wiki searches are turned off in the OSRS AI Buddy settings. Answer without the Wiki.", r.content);
 		assertTrue(requests.isEmpty());
 	}
 
@@ -523,7 +523,7 @@ public class LookupToolsTest
 		ChatApi.ToolResult r = run(tools, "wiki_page", "{\"title\":\"Abyssal whip\"}");
 		assertTrue(r.error);
 		assertTrue(r.content, r.content.contains("turned off"));
-		assertEquals("Skipped a Wiki page: Wiki look-ups are off", lastActivity());
+		assertEquals("Skipped a Wiki page: OSRS Wiki searches are off", lastActivity());
 		assertTrue(requests.isEmpty());
 	}
 

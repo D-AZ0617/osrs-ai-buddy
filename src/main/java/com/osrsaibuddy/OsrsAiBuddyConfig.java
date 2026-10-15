@@ -6,27 +6,32 @@ import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
 import net.runelite.client.config.Keybind;
 import net.runelite.client.config.Notification;
-import net.runelite.client.config.Range;
 
 @ConfigGroup(OsrsAiBuddyConfig.GROUP)
 public interface OsrsAiBuddyConfig extends Config
 {
 	String GROUP = "osrs-ai-buddy";
 
-	@ConfigSection(name = "ChatGPT", description = "Sign in from the panel menu and use your ChatGPT plan", position = 0)
-	String GENERAL = "chatgpt";
+    @ConfigSection(name = "Getting started", description = "Connect from Buddy's sidebar menu, choose a model, then allow replies", position = 0)
+    String GENERAL = "chatgpt";
 
-	@ConfigSection(name = "Data & privacy", description = "Choose what account information to share", position = 1)
-	String PRIVACY = "privacy";
+    @ConfigSection(name = "Your adventurer", description = "Choose the live account details Buddy may use in advice", position = 1)
+    String PRIVACY = "privacy";
 
-	@ConfigSection(name = "Notifications & game chat", description = "Reply notifications and chatbox controls", position = 2)
-	String GAME_CHAT = "chat";
+    @ConfigSection(name = "Knowledge sources", description = "Choose external sources for game knowledge and account history", position = 2, closedByDefault = true)
+    String KNOWLEDGE = "knowledge";
+
+    @ConfigSection(name = "Conversation", description = "Personalize advice, keep chats and set a shortcut", position = 3, closedByDefault = true)
+    String CONVERSATION = "conversation";
+
+    @ConfigSection(name = "Reply delivery", description = "Control chatbox copies and reply alerts", position = 4, closedByDefault = true)
+    String GAME_CHAT = "chat";
 
 	@ConfigItem(
 		keyName = "aiRequests",
-		name = "Enable AI requests",
-		description = "Send questions and chat history to OpenAI using your authorized ChatGPT plan. Sign-in works separately; model lists and Wiki look-ups require this setting.",
-		warning = "This feature submits your IP address and the messages you type to OpenAI, and (with \"Wiki look-ups\", on by default) the search words and page titles the assistant looks up to the OSRS Wiki: 3rd-party servers not controlled or verified by RuneLite developers.",
+		name = "Allow Buddy to answer",
+		description = "Allow questions, model discovery and permitted look-ups using your ChatGPT plan. Connect through the sidebar menu first. Sign in again after restarting RuneLite or re-enabling Buddy.",
+		warning = "This feature submits your IP address and the messages you type to OpenAI, and (with \"Allow OSRS Wiki searches\", on by default) the search words and page titles the assistant looks up to the OSRS Wiki: 3rd-party servers not controlled or verified by RuneLite developers.",
 		section = GENERAL,
 		position = 0
 	)
@@ -37,10 +42,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "instructions",
-		name = "Custom instructions",
+		name = "Advice preferences",
 		description = "Added to what the assistant is told before every chat, for example \"I'm an ironman\" or \"Answer in Dutch\".",
-		section = GENERAL,
-		position = 2
+		section = CONVERSATION,
+		position = 0
 	)
 	default String instructions()
 	{
@@ -49,10 +54,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "wikiLookups",
-		name = "Wiki look-ups",
+		name = "Allow OSRS Wiki searches",
 		description = "Let the assistant search and read the OSRS Wiki while it answers, and link the pages it used. The Wiki gets the search words and page titles, and your IP address. OSRS AI Buddy adds nothing about your account, but the assistant writes the search words from your question and anything you've shared. GE prices come from RuneLite's own price data and stay available with this off: they never go to the Wiki.",
-		section = GENERAL,
-		position = 3
+		section = KNOWLEDGE,
+		position = 0
 	)
 	default boolean wikiLookups()
 	{
@@ -65,7 +70,7 @@ public interface OsrsAiBuddyConfig extends Config
 		name = "Model",
 		description = "Sign in from the OSRS AI Buddy panel menu, then choose a model next to Send. Uses your authorized ChatGPT plan, without API-key fallback.",
 		section = GENERAL,
-		position = 2
+		position = 1
 	)
 	default String chatgptPlanModel()
 	{
@@ -74,7 +79,7 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "sendCharacter",
-		name = "Share character details",
+		name = "Share character overview",
 		description = "Send your character name, account type (ironman or not), levels and quest progress with your messages, and let the assistant look up your Slayer task and achievement diaries, for answers that fit your account. Off by default.",
 		warning = "This feature submits your IP address, character name, account type, skill levels, quest progress, Slayer task and achievement diaries with your messages to OpenAI: a 3rd-party server not controlled or verified by RuneLite developers.",
 		section = PRIVACY,
@@ -87,33 +92,33 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "shareItems",
-		name = "Share items and gear",
+		name = "Share bank, inventory & gear",
 		description = "Let the assistant look at your equipment, inventory and bank (as it was when you last had it open) when a question needs them. Each look is listed with the reply. Off by default.",
 		warning = "This feature submits your IP address and the items you wear, carry and keep in your bank, with their prices, to OpenAI when the assistant looks at them: a 3rd-party server not controlled or verified by RuneLite developers.",
 		section = PRIVACY,
-		position = 1
+		position = 2
 	)
 	default boolean shareItems()
 	{
 		return false;
 	}
 
-    @ConfigItem(keyName = "shareProgress", name = "Share extended progress", section = PRIVACY, position = 3,
+    @ConfigItem(keyName = "shareProgress", name = "Share achievements & collections", section = PRIVACY, position = 1,
         description = "Let Buddy read skills/XP, quest states, combat achievements, known collection-log items and completion sections, prayer/Slayer unlocks and selected currencies. Collection items are partial until supplied by the game. Off by default.",
         warning = "This feature submits your account progress, achievements, collection-log information and unlocks to OpenAI, a third-party server not controlled or verified by RuneLite developers.")
     default boolean shareProgress() { return false; }
 
-    @ConfigItem(keyName = "shareWom", name = "Share Wise Old Man data", section = PRIVACY, position = 4,
+    @ConfigItem(keyName = "shareWom", name = "Use Wise Old Man history", section = KNOWLEDGE, position = 1,
         description = "Read your existing public WOM profile, boss kills, activities, XP, gains, records and achievements when needed. Historical data can be stale. Does not create tracking or update your profile. Off by default.",
         warning = "This feature submits your logged-in character name and IP address to Wise Old Man, and the retrieved account statistics, achievements, history and public group/competition information to OpenAI. These are third-party servers not controlled or verified by RuneLite developers.")
     default boolean shareWom() { return false; }
 
 	@ConfigItem(
 		keyName = "rememberChats",
-		name = "Save chat history",
+		name = "Keep conversations on this PC",
 		description = "Keep your chats when RuneLite closes, saved on this computer in .runelite/plugin-data/osrs-ai-buddy (the latest 200 messages of each, and older ones still sent to the assistant). Turning this off deletes the saved copy; chats then last only while RuneLite is open.",
-		section = PRIVACY,
-		position = 2
+		section = CONVERSATION,
+		position = 1
 	)
 	default boolean rememberChats()
 	{
@@ -122,10 +127,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "notifyOnDone",
-		name = "Notify on reply",
+		name = "Reply alerts",
 		description = "Notification when a reply arrives. RuneLite skips notifications while the game is focused unless you enable that here.",
 		section = GAME_CHAT,
-		position = 0
+		position = 2
 	)
 	default Notification notifyOnDone()
 	{
@@ -134,10 +139,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "echoToChat",
-		name = "Show replies in game chat",
+		name = "Mirror replies to game chat",
 		description = "Print replies in the chatbox, not only in the side panel.",
 		section = GAME_CHAT,
-		position = 1
+		position = 0
 	)
 	default boolean echoToChat()
 	{
@@ -146,10 +151,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "echoMaxChars",
-		name = "Game chat reply length",
+		name = "Chatbox character limit",
 		description = "Longer replies are cut short in the chatbox; the side panel always has the full text.",
 		section = GAME_CHAT,
-		position = 2
+		position = 1
 	)
 	default int echoMaxChars()
 	{
@@ -158,10 +163,10 @@ public interface OsrsAiBuddyConfig extends Config
 
 	@ConfigItem(
 		keyName = "askHotkey",
-		name = "Ask hotkey",
+		name = "Ask Buddy shortcut",
 		description = "Opens an 'Ask:' prompt in the chatbox.",
-		section = GAME_CHAT,
-		position = 3
+		section = CONVERSATION,
+		position = 2
 	)
 	default Keybind askHotkey()
 	{

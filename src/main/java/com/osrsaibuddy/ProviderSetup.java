@@ -11,7 +11,7 @@ final class ProviderSetup
     ProviderSetup(OsrsAiBuddyConfig config, ChatGptAuth chatgpt) { this.config = config; this.chatgpt = chatgpt; }
     String connectionProblem()
     {
-        if (!config.aiRequests()) { return "Use Continue with ChatGPT in the panel menu, then turn on Enable AI requests in OSRS AI Buddy settings."; }
+        if (!config.aiRequests()) { return "Use Continue with ChatGPT in the panel menu, then turn on Allow Buddy to answer in OSRS AI Buddy settings."; }
         return chatgpt != null && chatgpt.connected() ? null : "Use Continue with ChatGPT in the OSRS AI Buddy panel menu to connect your plan.";
     }
     String problem()

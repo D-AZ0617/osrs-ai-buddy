@@ -22,17 +22,19 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 
 1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Continue with ChatGPT**.
 2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
-3. Turn on **Enable AI requests** in OSRS AI Buddy settings when you are ready to send questions.
+3. Turn on **Allow Buddy to answer** in OSRS AI Buddy settings when you are ready to send questions.
 4. Choose an available model next to Send; use Refresh list if needed.
-5. Ask a question. Sign in again after restarting RuneLite; tokens are kept in memory only. Enable Share character details only if you want personalized advice based on account progress.
+5. Ask a question. Sign in again after restarting RuneLite; tokens are kept in memory only. Enable Share character overview only if you want personalized advice based on account progress.
 
 There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; **Manage ChatGPT usage** opens your usage settings.
 
 ## Settings
 
-- **ChatGPT:** enable requests, optional custom instructions, and Wiki look-ups. Choose the model directly in the chat panel.
-- **Data & privacy:** share character details, share items and gear, share extended progress, share Wise Old Man data, and save chat history.
-- **Notifications & game chat:** reply notifications, chatbox echoes, echo length, and an optional Ask hotkey.
+- **Getting started:** allow Buddy to answer; connect and choose a model in the sidebar.
+- **Your adventurer:** share a character overview, achievements/collections, or bank/inventory/gear separately.
+- **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
+- **Conversation:** advice preferences, local chat history and the Ask Buddy shortcut.
+- **Reply delivery:** game-chat copies, character limit and reply alerts.
 
 See [PRIVACY.md](PRIVACY.md) for what leaves your PC and how sign-in is stored.
 
@@ -44,7 +46,7 @@ The regular RuneLite/Jagex Launcher will load this plugin only after a Plugin Hu
 
 ## Account context and limits
 
-Enable **Share extended progress** for current RuneLite progress and **Share Wise Old Man data** for historical statistics. Existing character and item sharing are separate. Ask “Use my account progress and WOM profile to suggest my next three goals.” Buddy retrieves relevant sections on demand; it does not insert the entire account into every question.
+Enable **Share achievements & collections** for current RuneLite progress and **Use Wise Old Man history** for historical statistics. Existing character and item sharing are separate. Ask “Use my account progress and WOM profile to suggest my next three goals.” Buddy retrieves relevant sections on demand; it does not insert the entire account into every question.
 
 WOM requires an existing tracked player. Buddy only performs public GET requests; it does not create a profile, submit updates, or enable public tracking. A missing profile or unranked value is unknown, not zero. WOM data may lag behind the live game. Requests are cached for two minutes and limited to one uncached request per 3.1 seconds; additional requests during that interval report that they need to wait. There is no API key or paid service setup.
 

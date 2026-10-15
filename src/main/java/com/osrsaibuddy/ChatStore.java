@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * What's kept of the chats between RuneLite sessions, when "Save chat history" is on: names, messages (with what was
+ * What's kept of the chats between RuneLite sessions, when "Keep conversations on this PC" is on: names, messages (with what was
  * looked up for each reply), and the summary sent instead of a long chat's oldest messages; nothing else. API keys
  * aren't part of a chat, and cached replayable reasoning stays in memory only. Converting happens on the Swing EDT
  * (where chats live); reading and writing the file happen elsewhere. Files from before a field was added still load:

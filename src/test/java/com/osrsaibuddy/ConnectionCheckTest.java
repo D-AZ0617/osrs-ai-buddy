@@ -137,7 +137,7 @@ public class ConnectionCheckTest
 	public void thePickersTooltipSaysWhyItsListIsShort()
 	{
 		String how = "The model new messages go to. Click to pick one, or to type its name.";
-		String off = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
+		String off = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
 		assertEquals(how + " The list fills in once AI requests are on and the provider is set up.",
 			ConnectionCheck.pickerTip(null, off, "Anthropic", ""));
 		assertEquals(how + " Looking up the models you can use\u2026",
@@ -158,7 +158,7 @@ public class ConnectionCheckTest
 	@Test
 	public void thePickersMenuSaysWhyItsListIsShort()
 	{
-		String off = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
+		String off = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
 		assertEquals("The list fills in once AI requests are on and the provider is set up.",
 			ConnectionCheck.listNote(null, off, "Anthropic"));
 		assertEquals("Looking up the models you can use\u2026", ConnectionCheck.listNote(ConnectionCheck.testing(SETUP),

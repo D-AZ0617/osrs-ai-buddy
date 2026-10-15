@@ -241,7 +241,7 @@ public class PanelTextTest
 			"Searched the Wiki for \"vorkath\"",
 			"Checked the GE price of Rune platebody",
 			"Checked the GE price of Rune platebody",
-			"Didn't share your inventory: \"Share items and gear\" is off",
+			"Didn't share your inventory: \"Share bank, inventory & gear\" is off",
 			"Read your bank, but didn't share it: the request had stopped");
 		assertEquals("Shared your equipment and searched your bank · Looked up Vorkath, Rune platebody (GE price)",
 			s.line(ROOMY));
@@ -249,7 +249,7 @@ public class PanelTextTest
 		assertEquals("Shared your equipment\n"
 			+ "Searched your bank for \"rune\"\n"
 			+ "Couldn't search the Wiki for \"vorkath\"\n"
-			+ "Didn't share your inventory: \"Share items and gear\" is off\n"
+			+ "Didn't share your inventory: \"Share bank, inventory & gear\" is off\n"
 			+ "Read your bank, but didn't share it: the request had stopped\n"
 			+ "Wiki pages: Vorkath\n"
 			+ "Wiki searches: \"vorkath\"\n"
@@ -268,7 +268,7 @@ public class PanelTextTest
 		// Read, but never sent, as the request had stopped; or a setting is off: nothing was shared.
 		PanelText.Summary stopped = sum(GameDataTools.unshared("Shared your bank"),
 			GameDataTools.unshared("Searched your bank for \"rune\""),
-			"Didn't share your inventory: \"Share items and gear\" is off");
+			"Didn't share your inventory: \"Share bank, inventory & gear\" is off");
 		assertNull(stopped.sharing);
 		// Said shorter on the line; the details have it in full.
 		assertEquals("Didn't share your bank (stopped)", stopped.line(ROOMY));
@@ -284,12 +284,12 @@ public class PanelTextTest
 	{
 		assertEquals("No look-ups: this model can't use tools", sum(RequestRunner.NO_LOOKUPS).line(ROOMY));
 		assertEquals(RequestRunner.NO_LOOKUPS, sum(RequestRunner.NO_LOOKUPS).details);
-		PanelText.Summary s = sum("Skipped a Wiki search: Wiki look-ups are off", "Couldn't read the game (get_bank)");
-		assertEquals("Skipped a Wiki search: Wiki look-ups are off", s.line(ROOMY));
+		PanelText.Summary s = sum("Skipped a Wiki search: OSRS Wiki searches are off", "Couldn't read the game (get_bank)");
+		assertEquals("Skipped a Wiki search: OSRS Wiki searches are off", s.line(ROOMY));
 		// Cut short between words, with no colon left before the ellipsis.
 		assertEquals("Skipped a Wiki search…", s.line(chars(25)));
 		assertEquals("Skipped a Wiki…", s.line(chars(20)));
-		assertEquals("Skipped a Wiki search: Wiki look-ups are off\nCouldn't read the game (get_bank)", s.details);
+		assertEquals("Skipped a Wiki search: OSRS Wiki searches are off\nCouldn't read the game (get_bank)", s.details);
 	}
 
 	@Test

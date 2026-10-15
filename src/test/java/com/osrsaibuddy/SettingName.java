@@ -13,7 +13,7 @@ final class SettingName
 	{
 	}
 
-	/** The name shown for the setting saved as {@code keyName}: "Share items and gear" for "shareItems". */
+	/** The name shown for the setting saved as {@code keyName}: "Share bank, inventory & gear" for "shareItems". */
 	static String of(String keyName)
 	{
 		for (Method m : OsrsAiBuddyConfig.class.getMethods())

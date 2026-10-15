@@ -249,7 +249,7 @@ final class GameData implements GameDataTools.Game
 		}
 	}
 
-	/** "Share items and gear" (or AI requests) turned off: the bank as last seen isn't kept where it can't be shared. */
+	/** "Share bank, inventory & gear" (or AI requests) turned off: the bank as last seen isn't kept where it can't be shared. */
 	void forgetBank()
 	{
 		bank = null;

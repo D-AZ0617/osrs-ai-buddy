@@ -451,7 +451,7 @@ public class OsrsAiBuddyPanelTest
 		onEdt(() ->
 		{
 			// Refresh list asks the provider, as Test connection does: not while that can't be done.
-			host.problem = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings.";
+			host.problem = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings.";
 			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
 			for (Component c : panel.composer.models.menu().getComponents())
 			{
@@ -796,7 +796,7 @@ public class OsrsAiBuddyPanelTest
 	{
 		onEdt(() ->
 		{
-			host.problem = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
+			host.problem = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
 			OsrsAiBuddyPanel panel = new OsrsAiBuddyPanel(host);
 			assertTrue(panel.banner.isVisible());
 			assertEquals(host.problem + " Open RuneLite's settings (the wrench) and search for OSRS AI Buddy.",

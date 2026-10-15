@@ -195,12 +195,12 @@ public class ToolBoxTest
 		query.addProperty("query", "vorkath");
 		ChatApi.ToolResult search = call(box, "wiki_search", query);
 		assertTrue(search.error);
-		assertTrue(search.content, search.content.contains("Wiki look-ups are turned off"));
+		assertTrue(search.content, search.content.contains("OSRS Wiki searches are turned off"));
 		ChatApi.ToolResult inventory = call(box, "get_inventory", new JsonObject());
 		assertTrue(inventory.error);
 		String items = SettingName.of("shareItems");
 		assertTrue(inventory.content, inventory.content.contains("\"" + items + "\""));
-		assertEquals(Arrays.asList("Skipped a Wiki search: Wiki look-ups are off",
+		assertEquals(Arrays.asList("Skipped a Wiki search: OSRS Wiki searches are off",
 			"Didn't share your inventory: \"" + items + "\" is off"), activity);
 	}
 }

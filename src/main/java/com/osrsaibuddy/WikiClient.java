@@ -32,7 +32,7 @@ import okhttp3.ResponseBody;
 @Slf4j
 final class WikiClient
 {
-	/** The error code for a request that wasn't sent because Wiki look-ups were turned off. */
+	/** The error code for a request that wasn't sent because Allow OSRS Wiki searches were turned off. */
 	static final String TURNED_OFF = "turned-off";
 	/** The error code for a request that wasn't sent because the reply it was for had stopped. */
 	static final String STOPPED = "stopped";
@@ -152,7 +152,7 @@ final class WikiClient
 	private final OkHttpClient http;
 	private final Gson gson;
 	private final HttpUrl api;
-	/** Checked just before each request goes out: Wiki look-ups (and AI requests) may be turned off while one waits. */
+	/** Checked just before each request goes out: Allow OSRS Wiki searches (and AI requests) may be turned off while one waits. */
 	private final BooleanSupplier allowed;
 	/** Requests waiting for the one in flight to finish. */
 	private final Deque<Runnable> waiting = new ArrayDeque<>();
@@ -267,7 +267,7 @@ final class WikiClient
 		}
 		else if (TURNED_OFF.equals(notSent))
 		{
-			listener.onError(TURNED_OFF, "Wiki look-ups are turned off in the OSRS AI Buddy settings.");
+			listener.onError(TURNED_OFF, "OSRS Wiki searches are turned off in the OSRS AI Buddy settings.");
 		}
 		else
 		{

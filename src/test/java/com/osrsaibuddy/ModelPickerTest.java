@@ -318,7 +318,7 @@ public class ModelPickerTest
 		assertEquals(1, refreshes);
 		onEdt(() ->
 		{
-			String off = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings.";
+			String off = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings.";
 			p.show("claude-opus-5-5", CLAUDE, TIP, "The list fills in once AI requests are on.", off);
 			JPopupMenu menu = p.menu();
 			JMenuItem refresh = item(menu, ModelPicker.REFRESH);

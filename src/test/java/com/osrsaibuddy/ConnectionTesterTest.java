@@ -189,7 +189,7 @@ public class ConnectionTesterTest
 		assertEquals(List.of("claude-opus-5-5", "claude-sonnet-5-5"), tester.check(SETUP).models);
 
 		// AI requests off: nothing is asked, and no API is even made.
-		String off = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
+		String off = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
 		assertFalse(tester.refresh(off, SETUP, () ->
 		{
 			throw new AssertionError("no API is even made");
@@ -243,7 +243,7 @@ public class ConnectionTesterTest
 	@Test
 	public void nothingIsAskedWhileTheProviderCantBeReached()
 	{
-		String off = "Turn on \"Enable AI requests\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
+		String off = "Turn on \"Allow Buddy to answer\" in the OSRS AI Buddy settings, then choose a provider and add your API key.";
 		assertFalse(tester.list(off, SETUP, () ->
 		{
 			throw new AssertionError("no API is even made");

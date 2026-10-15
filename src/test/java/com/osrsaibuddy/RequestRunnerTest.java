@@ -432,7 +432,7 @@ public class RequestRunnerTest
 		send("q");
 		assertTrue(host.wanted.getAsBoolean());
 		runner.stop(chat);
-		// Wiki look-ups still waiting their turn aren't sent.
+		// OSRS Wiki searches still waiting their turn aren't sent.
 		assertFalse(host.wanted.getAsBoolean());
 	}
 
@@ -1058,7 +1058,7 @@ public class RequestRunnerTest
 		runner.send(chat, "Q21", setup(true, false, true));
 		runEdt();
 		assertTrue(chat.isSummarizing());
-		// "Share character details" is turned off while the summary is being made.
+		// "Share character overview" is turned off while the summary is being made.
 		host.character = false;
 		api.listener().onReply(reply("The player is training Agility.", 50, 10));
 		runEdt();

@@ -28,11 +28,11 @@ final class RequestRunner
 	/** What the runner needs from the plugin. On the EDT unless it says otherwise. */
 	interface Host
 	{
-		/** "Enable AI requests", right now. */
+		/** "Allow Buddy to answer", right now. */
 		boolean aiRequests();
 
 		/**
-		 * "Share character details" (and AI requests), right now. A message keeps the setting it was sent with, but a summary
+		 * "Share character overview" (and AI requests), right now. A message keeps the setting it was sent with, but a summary
 		 * first can take a while: turning it off meanwhile leaves the details out all the same.
 		 */
 		boolean shareCharacter();

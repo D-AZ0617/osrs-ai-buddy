@@ -20,7 +20,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
- * "Save chat history": the saved chats are opened once and brought back, saves wait for that and then follow the chats,
+ * "Keep conversations on this PC": the saved chats are opened once and brought back, saves wait for that and then follow the chats,
  * and turning the setting off deletes the saved copy. The disk is a stand-in; the EDT is a queue the test runs.
  */
 public class ChatSaverTest

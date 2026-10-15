@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
 /**
- * "Save chat history": opens the saved chats once and brings them back, saves the chats a moment after they change, and
+ * "Keep conversations on this PC": opens the saved chats once and brings them back, saves the chats a moment after they change, and
  * deletes the saved copy when the setting is turned off. Runs on the Swing EDT, where the chats live; the file work
  * goes to {@code executor}, and what it found comes back through {@code edt}.
  */
@@ -31,7 +31,7 @@ final class ChatSaver
 	/** What the saver needs from the plugin. On the EDT, except {@link #rememberChats}. */
 	interface Host
 	{
-		/** "Save chat history", right now. Any thread. */
+		/** "Keep conversations on this PC", right now. Any thread. */
 		boolean rememberChats();
 
 		/** The chats, in order: what a save writes, and where saved chats are brought back to. */
@@ -214,7 +214,7 @@ final class ChatSaver
 		return pendingSave;
 	}
 
-	/** "Save chat history" is off: no saves waiting, and no saved copy left. */
+	/** "Keep conversations on this PC" is off: no saves waiting, and no saved copy left. */
 	private void deleteSaved()
 	{
 		if (pendingSave != null)

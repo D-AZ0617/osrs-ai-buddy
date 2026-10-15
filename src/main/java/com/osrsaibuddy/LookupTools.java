@@ -76,7 +76,7 @@ final class LookupTools implements ChatApi.ToolRunner
 		void highAlchemy(List<Integer> ids, Consumer<Map<Integer, Integer>> done);
 	}
 
-	/** Null when Wiki look-ups are off: the Wiki tools aren't offered, and calls to them are turned down. */
+	/** Null when OSRS Wiki searches are off: the Wiki tools aren't offered, and calls to them are turned down. */
 	private final WikiClient wiki;
 	private final Prices prices;
 	private final Consumer<String> activity;
@@ -252,7 +252,7 @@ final class LookupTools implements ChatApi.ToolRunner
 	{
 		if (wiki == null)
 		{
-			report.send("Skipped a Wiki search: Wiki look-ups are off", wikiOff());
+			report.send("Skipped a Wiki search: OSRS Wiki searches are off", wikiOff());
 			return;
 		}
 		String query = text(input, "query", MAX_QUERY);
@@ -283,7 +283,7 @@ final class LookupTools implements ChatApi.ToolRunner
 	{
 		if (wiki == null)
 		{
-			report.send("Skipped a Wiki page: Wiki look-ups are off", wikiOff());
+			report.send("Skipped a Wiki page: OSRS Wiki searches are off", wikiOff());
 			return;
 		}
 		String title = title(text(input, "title", MAX_TITLE + 100));
@@ -340,7 +340,7 @@ final class LookupTools implements ChatApi.ToolRunner
 
 	private static ChatApi.ToolResult wikiOff()
 	{
-		return ChatApi.ToolResult.error("Wiki look-ups are turned off in the OSRS AI Buddy settings. Answer without the Wiki.");
+		return ChatApi.ToolResult.error("OSRS Wiki searches are turned off in the OSRS AI Buddy settings. Answer without the Wiki.");
 	}
 
 	/**
