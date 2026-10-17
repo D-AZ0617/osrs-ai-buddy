@@ -1,27 +1,24 @@
 ## OSRS AI Buddy
 
-**Requires an active PAID ChatGPT subscription. The ChatGPT Free plan is not supported by OSRS AI Buddy.** OpenAI controls account/workspace eligibility, model access and usage limits. Subscription usage and any additional ChatGPT credits are managed in [ChatGPT Settings - Usage](https://chatgpt.com/settings/usage); OpenAI API credits are separate and are not used by Buddy.
+Adds a RuneScape-focused chat companion with ChatGPT browser sign-in, OSRS Wiki searches, RuneLite GE prices, and separately opted-in live account context and read-only Wise Old Man history.
 
-Adds a ChatGPT-plan-focused OSRS companion with browser sign-in, a chat sidebar, locally intercepted ::buddy questions, OSRS Wiki look-ups, GE prices, and opt-in character/item, extended account progress, and read-only Wise Old Man context. All account-sharing options default off. ChatGPT sign-in authorizes the connection; the redundant master request checkbox is removed.
+**Requires an active PAID ChatGPT subscription. The Free plan is not supported by Buddy.** OpenAI controls eligibility and shared plan/app limits. Usage/credit errors link to ChatGPT Usage settings; no API-key or separately billed API fallback exists. The plugin itself is free; an optional Buy Me A Coffee footer opens the maintainer's GitHub Sponsors page.
 
-This is a disclosed derivative of brendanciccone/osrs-ai-chat, not a clean-room implementation. It has a distinct package/config/storage namespace and icon. The original BSD license and attribution are preserved. Unlike the upstream multi-provider plugin, it supports ChatGPT plan OAuth only and has no API-key, Claude, compatible-endpoint or local-model configuration.
+This is a disclosed derivative of [Brendan Ciccone's AI Chat](https://github.com/brendanciccone/osrs-ai-chat), with its BSD copyright/license retained. It has distinct branding, package, configuration and storage. The separate project focuses on ChatGPT plan OAuth instead of upstream's API-key/multi-provider setup, adds WOM and account-progress tools, and reworks conversation/settings UI. LICENSE and NOTICE are bundled under src/main/resources/META-INF for the standard Hub build.
 
-### Review-sensitive capabilities
+### Review-sensitive behavior
 
-- The explicit sign-in action starts a short-lived HTTP callback listener on 127.0.0.1 only. It uses fresh state, nonce and S256 PKCE, verifies RS256 ID tokens against OpenAI JWKS, and never uses game-login credentials.
-- Remembered sign-in defaults on for Windows: OAuth access, refresh and ID tokens are protected with Windows current-user DPAPI through the existing RuneLite JNA runtime before storage. Non-secret registration metadata and the encrypted session use RuneLite Filepath in this plugin's scoped directory with atomic replacement and a file lock. No machine-wide encryption or plaintext fallback is used. On non-Windows systems the current implementation remains memory-only with an explicit notice. Plugin data reads/writes use scoped Filepath; user-clicked file-opening shortcuts pass a fixed scoped path or this plugin’s CodeSource folder to RuneLite LinkBrowser.open. No API keys are used.
-- A dedicated daemon worker handles blocking auth/storage work; injected RuneLite HTTP/Gson objects are used, with redirects and response caching disabled.
-- Only the configured OpenAI endpoints, OSRS Wiki and (with separate opt-in) api.wiseoldman.net receive requests. No project backend, remote code, process launching, or gameplay automation is involved. Optional game data is read on the client thread under separate opt-in gates.
-- WOM performs public GET requests only, never creates tracking or updates a player. Its character-name/IP and retrieved account-data disclosure is explicit. Results are bounded, cached briefly and rate spaced; account switches and opt-out cancel/discard pending results. Collection-log data is passively observed and explicitly partial.
-- This new OAuth callback and session capability needs explicit reviewer assessment; no claim of prior approval is made.
+- Explicit Sign In opens OpenAI in the system browser and temporarily listens on 127.0.0.1 for OAuth callbacks. State, nonce, PKCE and RS256 ID-token verification are used. No Jagex credentials are requested by the plugin.
+- Windows sessions are remembered using current-user DPAPI through RuneLite's existing JNA runtime. Registration/session data uses scoped Filepath storage, a process lock and atomic replacement; there is no plaintext token fallback. Non-Windows sessions remain memory-only with a notice. A dedicated daemon worker performs blocking auth/storage work.
+- User messages/history and opted-in context go to OpenAI. Wiki queries go to the OSRS Wiki. WOM requests are public GETs for the logged-in player only, separately opted in; no tracking creation, profile update or progress upload occurs. Requests have bounds, cache/account isolation and cancellation gates.
+- Account sharing defaults off. Item-level collection coverage is partial and passively observed; unknown pages/items are not reported as missing. No gameplay actions, process launches, remote code loading or custom backend are involved.
+- Local history uses JSON for restoration and generated Markdown transcripts for reading. Getting Started, Saved Conversations and Installed Plugin Folder open only fixed destinations on an explicit click, through LinkBrowser. GitHub and Sponsors links are also user-clicked. Credential records are not exposed by shortcuts.
+- Model selection defaults to Luna (Recommended), with account-listed mini, Sol and Astra options. Topic instructions restrict answers to RuneScape, math and plugin help, with a brief off-topic redirect; this is not represented as a guaranteed filter.
 
 ### Validation
 
-Local build and test results are recorded in SUBMISSION.md. Tests use loopback stand-ins, not real accounts. A separate local developer build verified the ChatGPT flow before this project was rebranded; fresh sign-in under the new application name still requires user consent.
+382 automated tests passed on the official RuneLite launcher Java 11.0.30 runtime; production bytecode targets Java 11. Tests use local stand-ins and synthetic credentials. The user verified in-game developer-client login, ChatGPT replies and live account/WOM tools. These checks do not replace Hub review, particularly for OAuth callbacks and Windows native session protection.
 
-Validation: all 382 tests passed on the official RuneLite launcher's Java 11.0.30 runtime. Production classes target Java 11. Automated tests use loopback stand-ins.
+The manifest includes the third-party data-submission warning. No credentials, private chats, game-login files or personal configuration are included in the submitted repository.
 
 Generated-by: OpenAI Codex
-
-
-The Configurations menu opens Buddy’s own settings page, with ConfigManager-backed controls and opt-in sharing warnings. Conversation saving is always enabled. The footer has explicit user-clicked shortcuts for saved chats, plugin data, plugin artifact folder, a local guide and GitHub. It never directly opens credential records or executes the JAR. The donation button is disabled, has no destination or listener, and makes no request.

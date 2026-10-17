@@ -13,7 +13,7 @@ Local verification: 382 tests passed on the official RuneLite launcher Java 11.0
 
 The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and Windows-protected persistent session behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
 
-The public source package contains no sign-in credentials, game login data, personal chat history, user configuration, build logs, or compiled JARs. Inherited BSD attribution is in LICENSE and NOTICE.md.
+License and attribution are also bundled under src/main/resources/META-INF for standard Hub builds. The public source package contains no sign-in credentials, game login data, personal chat history, user configuration, build logs, or compiled JARs. Inherited BSD attribution is in LICENSE and NOTICE.md.
 
 The Plugin Hub manifest needs a public repository URL and the exact pushed 40-character commit. Include the third-party-data warning. The candidate is not a Plugin Hub release until RuneLite reviews and merges its manifest and its build succeeds.
 
@@ -21,7 +21,7 @@ Review-sensitive points: temporary loopback HTTP callback, JWT signature verific
 
 The Plugin Hub recommends contributing to existing plugins when appropriate. This separate plugin focuses specifically on ChatGPT plan sign-in and intentionally excludes upstream's API-key and alternate-provider configuration. Its relationship to upstream is disclosed, not hidden by the new branding.
 
-WOM/account-context expansion: verified 352 tests with no failures, errors or skipped tests. Added tests cover opt-in gates before reads and delivery, account changes, in-flight and queued WOM cancellation, read-only endpoint encoding, cache isolation, missing/unranked data, redirects, response-size caps, rate cooldown, pagination and partial collection coverage. All network tests use local stand-ins; live WOM behavior and in-game collection coverage still need user testing. Hub submission remains paused.
+WOM/account-context expansion: verified 352 tests with no failures, errors or skipped tests. Added tests cover opt-in gates before reads and delivery, account changes, in-flight and queued WOM cancellation, read-only endpoint encoding, cache isolation, missing/unranked data, redirects, response-size caps, rate cooldown, pagination and partial collection coverage. All network tests use local stand-ins; live WOM behavior and in-game collection coverage still need user testing. Hub submission is now authorized.
 
 Collection-page fix: item-level obtained/missing/quantity snapshots are accepted only when visible header totals agree with the complete item grid. Page names and observation timestamps support targeted queries; unvisited coverage is unknown. Another player’s house adventure-log view is excluded. User confirmed the earlier live RuneLite/WOM data tools work in game; this newer page-reader build still needs an in-game check.
 
