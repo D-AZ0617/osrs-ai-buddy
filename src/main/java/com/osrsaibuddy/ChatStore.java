@@ -105,7 +105,7 @@ final class ChatStore
 			}
 			saved.chats.add(sc);
 		}
-		return gson.toJson(saved);
+		return gson.newBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(saved);
 	}
 
 	/**

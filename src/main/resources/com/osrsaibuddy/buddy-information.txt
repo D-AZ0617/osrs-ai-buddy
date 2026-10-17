@@ -100,11 +100,7 @@ KNOWLEDGE SOURCES
     progress to WOM. Missing or unranked data does not mean zero progress.
     WOM can be older than your current in-game account state.
 
-NOTIFICATIONS
-  Reply Alerts
-    Enables or disables reply notifications. RuneLite's notification settings
-    determine whether notifications appear while the game is focused.
-    Buddy's replies stay in the sidebar; they are not mirrored to game chat.
+Buddy replies stay in the sidebar. Reply alerts and game-chat echoes are disabled.
 
 4. COLLECTION LOGS: KNOWN, MISSING AND UNKNOWN
 ---------------------------------------------
@@ -149,9 +145,11 @@ Conversations are saved automatically on this PC. There is no save-history
 checkbox. Clear or Delete chats in Buddy to remove history.
 
 Saved Conversations
-  Opens chats.json in your computer's default application for JSON files.
-  This file can contain personal messages and shared account information.
-  Do not edit it while RuneLite is running, and do not post it publicly.
+  Opens conversations/, with one readable Markdown (.md) transcript per chat
+  and README.md as an index. Titles, timestamps and message formatting are kept.
+  These files can contain personal messages and shared account information.
+  Generated transcripts are refreshed automatically; edits are not imported.
+  Clear or Delete in Buddy updates/removes the generated copy. Do not post it publicly.
   Long chats may be summarized; the saved format keeps the latest 200
   messages plus older messages still needed for the conversation.
 
@@ -168,6 +166,8 @@ GitHub Repository
   Opens source code, documentation and updates in your web browser.
 
 Other local files:
+  chats.json              Formatted JSON used internally to restore chats.
+  conversations/          Readable copies generated from saved chat history.
   chats.lock              Prevents competing writers to conversation history.
   chatgpt/                Contains registration data and the protected session.
   buddy-information.txt   This generated help guide.

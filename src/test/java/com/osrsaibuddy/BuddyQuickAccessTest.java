@@ -19,11 +19,11 @@ public class BuddyQuickAccessTest
     @Test public void conversationAndInformationShortcutsStayInPluginData() throws Exception
     {
         Path folder = Files.createTempDirectory("buddy-shortcuts");
-        Files.writeString(folder.resolve("chats.json"), "{}");
+        Files.writeString(folder.resolve("chats.json"), "{}"); Files.createDirectory(folder.resolve("conversations"));
         List<String> opened = new ArrayList<>();
         BuddyQuickAccess access = new BuddyQuickAccess(() -> scoped(folder), null, opened::add, ignored -> fail());
         access.open("conversations"); access.open("information");
-        assertEquals(folder.resolve("chats.json").toString(), opened.get(0));
+        assertEquals(folder.resolve("conversations").toString(), opened.get(0));
         assertEquals(folder.resolve("buddy-information.txt").toString(), opened.get(1));
         assertTrue(Files.readString(folder.resolve("buddy-information.txt")).contains("Do not share the chatgpt subfolder"));
     }

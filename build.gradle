@@ -64,3 +64,8 @@ tasks.register('run', JavaExec) {
 
 version = '1.0.0'
 
+// Binary redistributions must include the inherited BSD license and attribution.
+tasks.named('jar') {
+    from(files('LICENSE', 'NOTICE.md')) { into 'META-INF' }
+}
+

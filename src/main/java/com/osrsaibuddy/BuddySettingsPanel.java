@@ -35,14 +35,12 @@ final class BuddySettingsPanel extends JPanel implements javax.swing.Scrollable
         heading("Knowledge sources");
         option("wikiLookups", "Allow OSRS Wiki searches", "Sends search terms, page titles and your IP address to the OSRS Wiki. Search terms may reflect your question or shared context. This third-party server is not controlled or verified by RuneLite developers.");
         option("shareWom", "Use Wise Old Man history", "Sends your logged-in character name and IP address to Wise Old Man and retrieved statistics/history to OpenAI. These third-party servers are not controlled or verified by RuneLite developers.");
-        heading("Notifications");
-        option("notifyOnDone", "Reply alerts", null);
         heading("Quick access");
         JTextArea note = PanelStyle.textArea("Conversations save automatically on this PC.");
         note.setForeground(PanelStyle.MUTED_COLOR); add(note);
-        shortcut("conversations", "Saved Conversations", "Open the local conversations file. It can contain personal chat and account details.");
-        shortcut("plugin", "Installed Plugin Folder", "Show the installed plugin's folder; does not execute its JAR.");
         shortcut("information", "Getting Started", "Open a local guide to Buddy's files, privacy and support.");
+        shortcut("conversations", "Saved Conversations", "Open readable conversation files. They can contain personal chat and account details.");
+        shortcut("plugin", "Installed Plugin Folder", "Show the installed plugin's folder; does not execute its JAR.");
         shortcut("github", "GitHub Repository", "Open the OSRS AI Buddy source and documentation.");
         refresh();
     }

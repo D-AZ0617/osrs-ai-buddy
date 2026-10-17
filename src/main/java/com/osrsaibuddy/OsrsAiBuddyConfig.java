@@ -4,7 +4,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
-import net.runelite.client.config.Notification;
+
 
 @ConfigGroup(OsrsAiBuddyConfig.GROUP)
 public interface OsrsAiBuddyConfig extends Config
@@ -17,8 +17,6 @@ public interface OsrsAiBuddyConfig extends Config
     @ConfigSection(name = "Knowledge sources", description = "Choose external sources for game knowledge and account history", position = 1, closedByDefault = true)
     String KNOWLEDGE = "knowledge";
 
-    @ConfigSection(name = "Notifications", description = "Choose reply notification behavior", position = 2, closedByDefault = true)
-    String CONVERSATION = "conversation";
 
 	@ConfigItem(
 		keyName = "wikiLookups",
@@ -80,16 +78,4 @@ public interface OsrsAiBuddyConfig extends Config
         description = "Read your existing public WOM profile, boss kills, activities, XP, gains, records and achievements when needed. Historical data can be stale. Does not create tracking or update your profile. Off by default.",
         warning = "This feature submits your logged-in character name and IP address to Wise Old Man, and the retrieved account statistics, achievements, history and public group/competition information to OpenAI. These are third-party servers not controlled or verified by RuneLite developers.")
     default boolean shareWom() { return false; }
-
-	@ConfigItem(
-		keyName = "notifyOnDone",
-		name = "Reply alerts",
-		description = "Notification when a reply arrives. RuneLite skips notifications while the game is focused unless you enable that here.",
-		section = CONVERSATION,
-		position = 2
-	)
-	default Notification notifyOnDone()
-	{
-		return Notification.ON;
-	}
 }

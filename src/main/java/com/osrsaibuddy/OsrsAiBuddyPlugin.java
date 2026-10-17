@@ -24,7 +24,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.gameval.VarClientID;
-import net.runelite.client.Notifier;
+
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
@@ -112,10 +112,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 
 	@Inject
 	private ChatboxPanelManager chatboxPanelManager;
-
-
-	@Inject
-	private Notifier notifier;
 
 	@Inject
 	private OsrsAiBuddyConfig config;
@@ -734,7 +730,6 @@ public class OsrsAiBuddyPlugin extends Plugin
                 case "shareItems": return config.shareItems();
                 case "wikiLookups": return config.wikiLookups();
                 case "shareWom": return config.shareWom();
-                case "notifyOnDone": return config.notifyOnDone().isEnabled();
                 default: return false;
             }
         }
@@ -744,8 +739,6 @@ public class OsrsAiBuddyPlugin extends Plugin
             {
                 case "sendCharacter": case "shareProgress": case "shareItems": case "wikiLookups": case "shareWom":
                     configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, key, enabled); break;
-                case "notifyOnDone":
-                    configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, key, config.notifyOnDone().withEnabled(enabled)); break;
                 default: throw new IllegalArgumentException("Unknown setting");
             }
         }
@@ -1000,7 +993,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override
 		public void ended(Chat chat, Chat.Message m)
 		{
-			ping(chat, m);
 		}
 	}
 
@@ -1102,18 +1094,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 	// ------------------------------------------------------------------
 	// Game chat
 	// ------------------------------------------------------------------
-
-	private void ping(Chat chat, Chat.Message m)
-	{
-		boolean ok = m.role == Chat.Role.ASSISTANT;
-		String who = ok ? m.who : "OSRS AI Buddy";
-		// An automatic chat name is just the start of the player's question: left out of notifications (they can
-		// outlive the session) and of the game chat (where it was just asked).
-		String name = chat.namedByPlayer ? chat.name : null;
-		String text = m.text;
-		String where = name != null ? " in \"" + name + "\"" : "";
-        clientThread.invokeLater(() -> notifier.notify(config.notifyOnDone(), (ok ? who + " replied" : "OSRS AI Buddy hit a problem") + where));
-    }
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged e)

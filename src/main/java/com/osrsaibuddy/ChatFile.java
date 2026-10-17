@@ -100,6 +100,11 @@ final class ChatFile implements ChatSaver.Disk
 				return new Opened(state, null);
 			}
 			ChatStore.Loaded loaded = ChatStore.fromJson(gson, json);
+            if (loaded != null)
+            {
+                try { ChatTranscripts.sync(dir, gson, json); }
+                catch (Exception e) { log.debug("couldn't refresh readable conversation copies", e); }
+            }
 			if (loaded == null)
 			{
 				// Damaged: kept aside for anyone who wants to look, and a fresh file started.
@@ -184,6 +189,7 @@ final class ChatFile implements ChatSaver.Disk
 			}
 			temp = null;
 			written = number;
+            ChatTranscripts.sync(dir, gson, json);
 		}
 		catch (Exception e)
 		{
@@ -230,6 +236,7 @@ final class ChatFile implements ChatSaver.Disk
 				borrowed = true;
 			}
 			dir.joinSegment(ChatStore.FILE_NAME).deleteIfExists();
+            ChatTranscripts.sync(dir, gson, "{\"chats\":[]}");
 			List<Filepath> temps;
 			try (Stream<Filepath> files = dir.walk(1))
 			{

@@ -42,7 +42,9 @@ final class BuddyQuickAccess
         {
             Filepath file = folder.joinSegment(ChatStore.FILE_NAME);
             if (!file.isFile()) { throw new IOException("There are no saved conversations yet. Send a message first, then try again."); }
-            open.accept(file.toString()); return;
+            Filepath transcripts = folder.joinSegment(ChatTranscripts.FOLDER);
+            if (!transcripts.isDirectory()) { throw new IOException("Readable conversations are not ready yet. Send a message in Buddy, then try again."); }
+            open.accept(transcripts.toString()); return;
         }
         Filepath information = folder.joinSegment("buddy-information.txt");
         // This is an app-generated guide: refresh it so existing installations receive updated help.

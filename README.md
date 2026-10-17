@@ -36,8 +36,7 @@ Open **⋯ → Configurations** for Buddy’s settings page. Its controls use th
 
 - **Account context:** character overview, achievements/collections, and bank/inventory/gear, each opt-in.
 - **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
-- **Notifications:** choose reply alerts.
-- **Quick access:** Saved Conversations, Installed Plugin Folder, Getting Started, and GitHub Repository. The conversations screen has a single Buy Me A Coffee footer button linking to GitHub Sponsors; support is optional.
+- **Quick access:** Getting Started, Saved Conversations, Installed Plugin Folder, and GitHub Repository. The conversations screen has a single Buy Me A Coffee footer button linking to GitHub Sponsors; support is optional.
 
 The chat menu contains Rename, Clear, Delete, Configurations, ChatGPT connection status, and Sign In or Log Out. Clicking a chat title returns to the conversation inbox. New conversations start with the plus button. Empty inboxes show a muted, recessed gray message. Replies stay in Buddy's panel; game-chat mirroring and the Ask shortcut are removed. ChatGPT sign-in is always remembered on Windows, with encrypted local storage. Conversations are always saved locally; the history checkbox has been removed. Use Clear or Delete to remove a conversation. Local shortcuts never directly open credential records or execute the plugin JAR.
 
@@ -67,3 +66,5 @@ Unsent plus-button drafts are not saved, repeated plus clicks reuse the draft, a
 Lightweight selection reduces accidental flagship usage, but does not reserve quota or guarantee unlimited messages. Model availability and plan-wide limits remain controlled by ChatGPT. Sending waits if no supported lightweight model is listed.
 
 Buddy is scoped to RuneScape, genuine math questions, and Buddy/RuneLite help. Unrelated requests receive a short RuneScape redirect, with no unrelated tool lookups. These are model instructions rather than a deterministic filter: refusals still use ChatGPT allowance and model adherence can vary.
+
+Saved Conversations opens a folder of readable Markdown transcripts, one per chat, with an index, titles and timestamps. Buddy retains formatted chats.json internally for reliable restoration and compatibility. Generated transcripts reflect renames, clears and deletes; manual transcript edits are not imported. Reply alerts are removed from both settings views and disabled.
