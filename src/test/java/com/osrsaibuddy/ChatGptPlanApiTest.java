@@ -134,6 +134,35 @@ public class ChatGptPlanApiTest
 		assertTrue(heard.error.contains("isn't available"));
 		assertEquals(1, server.bodies.size());
 	}
+    @Test public void httpUsageLimitExplainsPaidPlanAndCreditsWithoutRetrying()
+    {
+        server.answer("/v1/responses", StandIn.json(429, "{\"error\":{\"code\":\"subscription_sharing_usage_limit_exceeded\",\"message\":\"private details\"}}"));
+        StandIn.Heard heard = send(StandIn.conversation("m", "q"));
+        assertNull(heard.reply);
+        assertEquals(ChatGptPlanApi.PLAN_HELP, heard.error);
+        assertFalse(heard.error.contains("private details"));
+        assertEquals(1, server.bodies.size());
+    }
+    @Test public void lateQuotaFailureGetsTheSameSubscriptionTroubleshooting()
+    {
+        server.answer("/v1/responses", StandIn.events(event("{\"type\":\"response.failed\",\"response\":{\"error\":{\"code\":\"insufficient_quota\"}}}")));
+        StandIn.Heard heard = send(StandIn.conversation("m", "q"));
+        assertEquals(ChatGptPlanApi.PLAN_HELP, heard.error);
+        assertNull(heard.reply); assertEquals(1, server.bodies.size());
+    }
+    @Test public void temporaryUsageCheckFailureDoesNotTellUsersToPurchaseCredits()
+    {
+        server.answer("/v1/responses", StandIn.events(event("{\"type\":\"error\",\"code\":\"subscription_sharing_usage_unavailable\"}")));
+        StandIn.Heard heard = send(StandIn.conversation("m", "q"));
+        assertTrue(heard.error.contains("temporarily"));
+        assertFalse(heard.error.contains("purchase")); assertNull(heard.reply);
+    }
+    @Test public void genericThrottlingAndExpiredSessionsHaveDifferentRecovery()
+    {
+        assertTrue(ChatGptPlanApi.httpError(429).contains("does not necessarily"));
+        assertTrue(ChatGptPlanApi.httpError(401).contains("Sign In"));
+        assertFalse(ChatGptPlanApi.httpError(401).contains("purchase"));
+    }
 	@Test public void listsOnlyVisibleAccountModelsInServerOrder() throws Exception
 	{
 		server.answer("/v1/models", StandIn.json(200, "{\"models\":[{\"slug\":\"second\",\"visibility\":\"list\"},{\"slug\":\"hidden\",\"visibility\":\"hide\"},{\"slug\":\"first\",\"visibility\":\"list\"}]}"));

@@ -1,3 +1,5 @@
+**Requires an active PAID ChatGPT subscription. The ChatGPT Free plan is not supported by OSRS AI Buddy.** OpenAI controls account/workspace eligibility, model access and usage limits. Subscription usage and any additional ChatGPT credits are managed in [ChatGPT Settings - Usage](https://chatgpt.com/settings/usage); OpenAI API credits are separate and are not used by Buddy.
+
 # Plugin Hub submission
 
 Candidate: OSRS AI Buddy 1.0.0
@@ -7,7 +9,7 @@ Configuration and storage namespace: osrs-ai-buddy
 Packaging: standard (no extra production dependencies)
 Icon: 48x48 root icon.png, 32x32 sidebar resource, PNG with transparency
 Bytecode target: Java 11
-Local verification: 378 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
+Local verification: 382 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
 
 The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and Windows-protected persistent session behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
 

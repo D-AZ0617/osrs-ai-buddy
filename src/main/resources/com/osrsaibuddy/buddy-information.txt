@@ -1,3 +1,5 @@
+REQUIRES AN ACTIVE PAID CHATGPT SUBSCRIPTION. FREE PLAN IS NOT SUPPORTED.
+
   .---------------------------------------------------------------------.
   |                                                                     |
   |          .--------.           *                                     |
@@ -265,3 +267,14 @@ It should not look up or answer unrelated topics, even when asked to ignore
 its rules. Mixed requests are answered only for the supported parts. This is
 model guidance, not a guaranteed filter; refusals still use plan allowance.
 
+
+
+SUBSCRIPTION AND USAGE TROUBLESHOOTING
+If your last message cannot be submitted, check that your paid ChatGPT
+subscription is active and permitted for the selected account/workspace.
+Review https://chatgpt.com/settings/usage for plan, credit and Buddy app limits.
+If a limit has been reached, wait for the allowance to reset, adjust the app
+limit, or purchase additional ChatGPT credits if offered in those settings.
+Separate OpenAI API credits do not apply to this plugin. Temporary service
+failures or rate limits do not automatically mean your credits are exhausted.
+For an expired session, use Sign In in Buddy's menu.

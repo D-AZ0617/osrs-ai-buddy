@@ -6,6 +6,8 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 
 **Publication status:** submission candidate. This plugin has not yet been accepted into the RuneLite Plugin Hub.
 
+**Requires an active PAID ChatGPT subscription. The ChatGPT Free plan is not supported by OSRS AI Buddy.** OpenAI controls account/workspace eligibility, model access and usage limits. Subscription usage and any additional ChatGPT credits are managed in [ChatGPT Settings - Usage](https://chatgpt.com/settings/usage); OpenAI API credits are separate and are not used by Buddy.
+
 ## What Buddy does
 
 - Opens to a conversation inbox with dated cards and recent-message previews. Chats support streaming replies, retry and copy.
@@ -21,7 +23,7 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 ## Connect ChatGPT
 
 1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Sign In**.
-2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
+2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. An active paid ChatGPT subscription is required; the Free plan is not supported. OpenAI controls eligibility and limits.
 3. Once connected, Buddy is ready to answer; no separate enable-requests switch is needed.
 4. Buddy selects an account-listed lightweight model, preferring Luna, then GPT-5 mini. Use Refresh list if needed. Luna is labeled (Recommended). Account-listed Astra and Sol models are available by explicit selection; custom model names are blocked.
 5. Ask a question. On Windows, ChatGPT sign-in is remembered automatically: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
@@ -68,3 +70,5 @@ Lightweight selection reduces accidental flagship usage, but does not reserve qu
 Buddy is scoped to RuneScape, genuine math questions, and Buddy/RuneLite help. Unrelated requests receive a short RuneScape redirect, with no unrelated tool lookups. These are model instructions rather than a deterministic filter: refusals still use ChatGPT allowance and model adherence can vary.
 
 Saved Conversations opens a folder of readable Markdown transcripts, one per chat, with an index, titles and timestamps. Buddy retains formatted chats.json internally for reliable restoration and compatibility. Generated transcripts reflect renames, clears and deletes; manual transcript edits are not imported. Reply alerts are removed from both settings views and disabled.
+
+If submitting a message fails because of plan eligibility, usage limits or exhausted credits, Buddy explains the paid subscription requirement and links to ChatGPT Usage settings. Check the applicable plan or app limit, wait for an allowance reset, or add ChatGPT credits if offered. Temporary service/rate-limit and expired-session errors have separate troubleshooting; purchasing credits is not a universal fix.

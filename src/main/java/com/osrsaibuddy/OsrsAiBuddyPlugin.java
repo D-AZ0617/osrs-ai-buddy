@@ -52,7 +52,7 @@ import okhttp3.OkHttpClient;
 @PluginDescriptor(
 	name = "OSRS AI Buddy",
 	internalName = "osrs-ai-buddy",
-	description = "Your OSRS companion powered by ChatGPT sign-in: training advice, quest guidance, Wiki searches and optional account context",
+	description = "Requires a PAID ChatGPT subscription; Free plan not supported. OSRS advice, quest guidance, Wiki searches and optional account context.",
 	tags = {"chatgpt", "buddy", "assistant", "ai", "wiki", "training", "quests", "advice"}
 )
 public class OsrsAiBuddyPlugin extends Plugin

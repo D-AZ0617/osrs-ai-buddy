@@ -20,6 +20,9 @@ import okhttp3.Response;
 /** Responses over OAuth, strictly separate from the API-key provider. Never falls back to paid API billing. */
 final class ChatGptPlanApi implements ChatApi
 {
+    static final String PLAN_HELP = "Error submitting your last message. Please make sure you have an active paid ChatGPT subscription; the Free plan is not supported by OSRS AI Buddy. "
+        + "Review your plan, credits and Buddy's app limit in [ChatGPT Settings - Usage](https://chatgpt.com/settings/usage). "
+        + "If you have reached a usage or credit limit, wait for your allowance to reset, adjust the app limit, or purchase additional ChatGPT credits if offered there. No API-key fallback was used.";
 	interface Token { String get() throws IOException; }
 	private final OkHttpClient http;
 	private final Gson gson;
@@ -57,7 +60,7 @@ final class ChatGptPlanApi implements ChatApi
 				try (Response response = call.execute())
 				{
 					if (pending.isCancelled()) { return; }
-					if (!response.isSuccessful()) { listener.onError(httpError(response.code())); return; }
+					if (!response.isSuccessful()) { listener.onError(responseError(response)); return; }
 					JsonObject body = ChatApi.fromJson(gson, response.body().string(), JsonObject.class);
 					List<String> models = new ArrayList<>();
 					if (body.has("models"))
@@ -131,11 +134,49 @@ final class ChatGptPlanApi implements ChatApi
 
 	static String httpError(int status)
 	{
-		if (status == 401) { return "Your ChatGPT session needs sign-in again. Use Continue with ChatGPT in the menu."; }
-		if (status == 403) { return "ChatGPT plan access isn't available or permitted for this account. Review access in ChatGPT Settings."; }
-		if (status == 429) { return "Your ChatGPT plan limit was reached, or the service is busy. Check Manage ChatGPT usage and try later."; }
+		if (status == 401) { return "Your ChatGPT session needs sign-in again. Use Sign In in Buddy's menu."; }
+        if (status == 402) { return PLAN_HELP; }
+		if (status == 403) { return "ChatGPT plan access isn't available or permitted for this account or workspace. " + PLAN_HELP; }
+		if (status == 429) { return "Error submitting your last message. ChatGPT is rate-limiting requests or a usage limit was reached. Review [ChatGPT Settings - Usage](https://chatgpt.com/settings/usage), then try later. "
+            + "Buddy requires an active paid ChatGPT subscription; the Free plan is not supported. A temporary rate limit does not necessarily mean you need to buy credits."; }
 		return "ChatGPT plan request failed (HTTP " + status + "). No API-key fallback was used.";
 	}
+
+    private String responseError(Response response)
+    {
+        JsonObject value = null;
+        try
+        {
+            if (response.body() != null)
+            {
+                okio.BufferedSource source = response.body().source();
+                source.request(16385);
+                value = ChatApi.fromJson(gson, source.readUtf8(Math.min(16384, source.buffer().size())), JsonObject.class);
+            }
+        }
+        catch (Exception ignored) { /* Use a safe status message; never display raw service payloads. */ }
+        return structuredError(value, response.code());
+    }
+
+    static String structuredError(JsonObject value, int status)
+    {
+        JsonObject error = value;
+        if (error != null && error.has("response") && error.get("response").isJsonObject()) { error = error.getAsJsonObject("response"); }
+        if (error != null && error.has("error") && error.get("error").isJsonObject()) { error = error.getAsJsonObject("error"); }
+        String code = error == null ? "" : ChatGptAuth.text(error, "code");
+        switch (code)
+        {
+            case "subscription_sharing_usage_limit_exceeded":
+            case "subscription_sharing_user_not_eligible":
+            case "insufficient_quota":
+            case "insufficient_credits": return PLAN_HELP;
+            case "subscription_sharing_usage_unavailable":
+                return "Error submitting your last message. ChatGPT temporarily couldn't check your plan usage. Please try again later; this does not confirm that your credits are exhausted.";
+            case "subscription_sharing_invalid_user": return httpError(401);
+            case "rate_limit_exceeded": return httpError(429);
+            default: return status > 0 ? httpError(status) : "ChatGPT couldn't complete the reply. Check your connection and [ChatGPT plan usage](https://chatgpt.com/settings/usage), then retry. No API-key fallback was used.";
+        }
+    }
 
 	private final class Run
 	{
@@ -181,7 +222,7 @@ final class ChatGptPlanApi implements ChatApi
 							try (Response r = response)
 							{
 								if (stopped()) { return; }
-								if (!r.isSuccessful()) { fail(httpError(r.code())); return; }
+								if (!r.isSuccessful()) { fail(responseError(r)); return; }
 								if (r.body() == null || (!Sse.isEventStream(r) && !Sse.hasEventFraming(r)))
 								{ fail("ChatGPT returned an unexpected response format. Please retry."); return; }
 								JsonObject[] completed = {null};
@@ -205,7 +246,7 @@ final class ChatGptPlanApi implements ChatApi
 									if ("response.completed".equals(type)) { completed[0] = value.getAsJsonObject("response"); return false; }
 									if ("response.failed".equals(type) || "response.incomplete".equals(type) || "error".equals(type))
 									{
-										fail("ChatGPT couldn't complete the reply. Check your plan usage and connection, then retry. No API-key fallback was used.");
+										fail(structuredError(value, 0));
 									return false;
 									}
 									return true;
