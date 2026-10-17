@@ -65,3 +65,5 @@ Derived from Brendan Ciccone's BSD-licensed AI Chat plugin. See [NOTICE.md](NOTI
 Unsent plus-button drafts are not saved, repeated plus clicks reuse the draft, and deleting a chat returns to the inbox. Empty legacy Chat-number placeholders are removed without removing conversations containing messages. Getting Started refreshes the extensive local help guide, including a text mascot.
 
 Lightweight selection reduces accidental flagship usage, but does not reserve quota or guarantee unlimited messages. Model availability and plan-wide limits remain controlled by ChatGPT. Sending waits if no supported lightweight model is listed.
+
+Buddy is scoped to RuneScape, genuine math questions, and Buddy/RuneLite help. Unrelated requests receive a short RuneScape redirect, with no unrelated tool lookups. These are model instructions rather than a deterministic filter: refusals still use ChatGPT allowance and model adherence can vary.

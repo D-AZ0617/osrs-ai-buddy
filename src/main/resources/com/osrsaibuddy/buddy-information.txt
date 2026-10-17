@@ -257,3 +257,11 @@ list; sending pauses instead of falling back to a flagship. This reduces
 accidental heavyweight use, but does not reserve quota or guarantee unlimited
 messages. ChatGPT controls shared plan limits and model availability.
 
+
+TOPIC GUIDANCE
+Buddy answers RuneScape, genuine math, and Buddy/RuneLite help questions.
+For unrelated requests it redirects: I'm here to help with RuneScape. What can I help you work out?
+It should not look up or answer unrelated topics, even when asked to ignore
+its rules. Mixed requests are answered only for the supported parts. This is
+model guidance, not a guaranteed filter; refusals still use plan allowance.
+
