@@ -250,9 +250,9 @@ OpenAI, Wise Old Man or the OSRS Wiki.
 Thanks for bringing Buddy along on your next adventure.
 
 LIGHTWEIGHT MODELS
-Buddy offers only account-listed general-purpose Luna and GPT-5 mini models.
-Luna is preferred; an available saved mini choice is respected. Flagship and
-custom model names are blocked. If no supported model is listed, refresh the
+Buddy offers account-listed Luna, GPT-5 mini, Sol and Astra models.
+Luna is the default and labeled (Recommended); saved selections are respected.
+Custom model names are blocked. Flagship models require explicit selection. If no supported model is listed, refresh the
 list; sending pauses instead of falling back to a flagship. This reduces
 accidental heavyweight use, but does not reserve quota or guarantee unlimited
 messages. ChatGPT controls shared plan limits and model availability.

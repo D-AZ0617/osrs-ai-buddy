@@ -23,7 +23,7 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Sign In**.
 2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
 3. Once connected, Buddy is ready to answer; no separate enable-requests switch is needed.
-4. Buddy selects an account-listed lightweight model, preferring Luna, then GPT-5 mini. Use Refresh list if needed. Flagship models and custom model names are blocked; there is no heavyweight fallback.
+4. Buddy selects an account-listed lightweight model, preferring Luna, then GPT-5 mini. Use Refresh list if needed. Luna is labeled (Recommended). Account-listed Astra and Sol models are available by explicit selection; custom model names are blocked.
 5. Ask a question. On Windows, ChatGPT sign-in is remembered automatically: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
 
 There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; usage limits can be managed in [ChatGPT settings](https://chatgpt.com/settings/usage).

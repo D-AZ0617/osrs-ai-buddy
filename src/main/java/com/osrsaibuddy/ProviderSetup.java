@@ -17,7 +17,7 @@ final class ProviderSetup
     String problem()
     {
         String connection = connectionProblem();
-        return connection != null ? connection : model().isEmpty() ? "No supported lightweight model is available yet. Refresh the model list. Buddy will not fall back to a flagship model." : null;
+        return connection != null ? connection : model().isEmpty() ? "Refresh the model list or choose an available model. Buddy will not automatically select a flagship model." : null;
     }
     ChatApi api(OkHttpClient http, Gson gson) { return problem() == null ? build(http, gson) : null; }
     ChatApi testApi(OkHttpClient http, Gson gson) { return connectionProblem() == null ? build(http, gson) : null; }

@@ -145,7 +145,7 @@ final class ModelPicker extends JPanel
 		if (!m.equals(current) || !button.getText().equals(m.isEmpty() ? NONE : m))
 		{
 			current = m;
-			button.setText(m.isEmpty() ? NONE : m);
+			button.setText(m.isEmpty() ? NONE : BuddyModels.label(m));
 			revalidate();
 			repaint();
 		}
@@ -344,7 +344,7 @@ final class ModelPicker extends JPanel
 			return;
 		}
 		current = model;
-		button.setText(model);
+		button.setText(BuddyModels.label(model));
 		revalidate();
 		// Not from inside the menu's or the box's own event: setting the model redraws the panel, this picker included.
 		SwingUtilities.invokeLater(() -> actions.choose(model));
@@ -452,7 +452,7 @@ final class ModelPicker extends JPanel
 		public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
 			boolean selected, boolean focus)
 		{
-			name.setText(value);
+			name.setText(BuddyModels.label(value));
 			tick.setIcon(Objects.equals(value, current) ? ticked : null);
 			setOpaque(selected);
 			// Lit as the menu's items are under the mouse.
