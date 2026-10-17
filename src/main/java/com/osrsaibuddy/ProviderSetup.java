@@ -8,6 +8,7 @@ final class ProviderSetup
 {
     private final OsrsAiBuddyConfig config;
     private final ChatGptAuth chatgpt;
+    java.util.function.Supplier<java.util.List<String>> availableModels = java.util.Collections::emptyList;
     ProviderSetup(OsrsAiBuddyConfig config, ChatGptAuth chatgpt) { this.config = config; this.chatgpt = chatgpt; }
     String connectionProblem()
     {
@@ -16,7 +17,7 @@ final class ProviderSetup
     String problem()
     {
         String connection = connectionProblem();
-        return connection != null ? connection : model().isEmpty() ? "Choose an available ChatGPT model next to Send. Use Refresh list if needed." : null;
+        return connection != null ? connection : model().isEmpty() ? "No supported lightweight model is available yet. Refresh the model list. Buddy will not fall back to a flagship model." : null;
     }
     ChatApi api(OkHttpClient http, Gson gson) { return problem() == null ? build(http, gson) : null; }
     ChatApi testApi(OkHttpClient http, Gson gson) { return connectionProblem() == null ? build(http, gson) : null; }
@@ -28,7 +29,7 @@ final class ProviderSetup
             return chatgpt.accessToken();
         }, chatgpt.requestExecutor());
     }
-    String model() { return config.chatgptPlanModel().trim(); }
+    String model() { return BuddyModels.selected(config.chatgptPlanModel().trim(), availableModels.get()); }
     String modelKey() { return "chatgptPlanModel"; }
     String service() { return "ChatGPT"; }
     boolean keyed() { return true; }

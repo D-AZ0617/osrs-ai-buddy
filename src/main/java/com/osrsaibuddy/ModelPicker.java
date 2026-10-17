@@ -83,6 +83,7 @@ final class ModelPicker extends JPanel
 	private String note;
 	/** Why Refresh list can't ask the provider now, or null when it can. */
 	private String refreshProblem;
+    boolean allowCustomModels = true;
 
 	ModelPicker(Actions actions)
 	{
@@ -221,7 +222,7 @@ final class ModelPicker extends JPanel
 		JMenuItem type = PanelStyle.menuItem(TYPE);
 		type.setToolTipText("Type the name of a model that isn't listed, as the provider gives it");
 		type.addActionListener(e -> startTyping());
-		menu.add(type);
+		if (allowCustomModels) { menu.add(type); }
 		JMenuItem refresh = PanelStyle.menuItem(REFRESH);
 		for (JMenuItem item : new JMenuItem[]{type, refresh})
 		{
@@ -338,7 +339,7 @@ final class ModelPicker extends JPanel
 	private void choose(String item)
 	{
 		String model = item == null ? "" : item.trim();
-		if (model.isEmpty() || model.equals(current))
+		if (model.isEmpty() || model.equals(current) || !allowCustomModels && !choices.contains(model))
 		{
 			return;
 		}

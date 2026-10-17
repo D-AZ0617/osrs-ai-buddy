@@ -175,7 +175,6 @@ public class OsrsAiBuddyPlugin extends Plugin
 	// Swing EDT state.
 	private final List<Chat> chats = new ArrayList<>();
 	private Chat current;
-	private int chatCounter;
 	/** Client thread: replies that arrived while logged out, echoed once the player logs in. */
 	private final List<String[]> heldEchoes = new ArrayList<>();
 
@@ -238,21 +237,17 @@ public class OsrsAiBuddyPlugin extends Plugin
 				panel.refreshAll();
 			}
 		});
+		provider.availableModels = () -> {
+            ConnectionCheck check = tester.check(provider.connection());
+            return check == null ? null : check.models;
+        };
 		if (saver == null)
 		{
 			saver = new ChatSaver(new ChatFile(this::getPluginDirectory, gson), gson, SwingUtilities::invokeLater, executor,
 				new Saving());
 		}
-		// Chats outlive turning the plugin off and on: they're kept for as long as RuneLite runs, and, with "Remember
-		// chats", on disk for the next time.
-		if (chats.isEmpty())
-		{
-			current = addChat();
-		}
-		else if (current == null || !chats.contains(current))
-		{
-			current = chats.get(chats.size() - 1);
-		}
+        ConversationLifecycle.removeLegacyPlaceholders(chats);
+        current = null;
 		panel = new OsrsAiBuddyPanel(new Panel());
 		listModels();
 		BufferedImage icon = ImageUtil.loadImageResource(OsrsAiBuddyPlugin.class, "icon.png");
@@ -447,7 +442,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 	/** The model picker: the provider's model setting becomes {@code model}, as if typed in the settings. */
 	void chooseModel(String model)
 	{
-		if (model != null && !model.trim().isEmpty())
+		if (model != null && BuddyModels.choices(provider.availableModels.get()).contains(model.trim()))
 		{
 			// Tells onConfigChanged, which shows the new model.
 			configManager.setConfiguration(OsrsAiBuddyConfig.GROUP, provider.modelKey(), model.trim());
@@ -538,14 +533,19 @@ public class OsrsAiBuddyPlugin extends Plugin
 				return;
 			}
 			Chat chat = current;
-			if (chat == null || chat.isRunning())
+			if (chat == null)
+            {
+                gameMessage("OSRS AI Buddy: open the panel and press + to start a conversation first.");
+                return;
+            }
+            if (chat.isRunning())
 			{
 				keepDraft(text);
 				gameMessage("OSRS AI Buddy: still waiting for the last reply. Your message is waiting in the OSRS AI Buddy panel.");
 				return;
 			}
 			RequestRunner.Setup setup = setup();
-			runner.send(chat, text, setup);
+            sendInConversation(chat, text, setup);
 			sent();
 			gameMessage("Asked " + setup.api.displayName() + (chat.namedByPlayer ? " (" + chat.name + ")" : "")
 				+ ". You'll be pinged when there's a reply.");
@@ -575,7 +575,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 			showError("Still waiting for the last reply. Send this when it's in, or press Stop.");
 			return false;
 		}
-		runner.send(chat, text, setup);
+		sendInConversation(chat, text, setup);
 		sent();
 		return true;
 	}
@@ -604,6 +604,12 @@ public class OsrsAiBuddyPlugin extends Plugin
 		}
 	}
 
+    private void sendInConversation(Chat chat, String text, RequestRunner.Setup setup)
+    {
+        ConversationLifecycle.commit(chats, chat);
+        runner.send(chat, text, setup);
+    }
+
 	/** A message went: a Test's good news has been read by now, and makes way for the conversation. */
 	private void sent()
 	{
@@ -622,20 +628,11 @@ public class OsrsAiBuddyPlugin extends Plugin
 		}
 	}
 
-	private Chat addChat()
-	{
-		Chat c = new Chat("Chat " + (++chatCounter));
-		chats.add(c);
-		return c;
-	}
-
-	void newChat()
-	{
-		current = addChat();
-        panel.showConversation();
-		panel.refreshAll();
-		panel.focusInput();
-	}
+    void newChat()
+    {
+        current = ConversationLifecycle.draft(chats, current);
+        panel.showConversation(); panel.focusInput();
+    }
 
 	void selectChat(Chat chat)
 	{
@@ -680,16 +677,9 @@ public class OsrsAiBuddyPlugin extends Plugin
 	void deleteChat(Chat chat)
 	{
 		RequestRunner.cancel(chat);
-		int index = chats.indexOf(chat);
-		chats.remove(chat);
-		if (chats.isEmpty())
-		{
-			addChat();
-		}
-		if (current == chat)
-		{
-			current = chats.get(Math.max(0, Math.min(index, chats.size() - 1)));
-		}
+        chats.remove(chat);
+        current = null;
+        panel.showInbox();
 		saver.saveSoon();
 		panel.refreshAll();
 	}
@@ -718,6 +708,7 @@ public class OsrsAiBuddyPlugin extends Plugin
     private final class Panel implements OsrsAiBuddyPanel.Host
 	{
         @Override public void openConfigurations() { panel.showConfigurations(); }
+        @Override public void conversationsOpened() { current = null; }
         @Override public boolean configurationValue(String key)
         {
             switch (key)
@@ -840,7 +831,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		public List<String> modelChoices()
 		{
 			ConnectionCheck check = tester.check(provider.connection());
-			return ConnectionCheck.choices(provider.model(), check == null ? null : check.models);
+			return BuddyModels.choices(check == null ? null : check.models);
 		}
 
 		@Override
@@ -853,7 +844,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override
 		public String modelNote()
 		{
-			return ConnectionCheck.listNote(tester.check(provider.connection()), testProblem(), provider.service());
+			return BuddyModels.NOTE;
 		}
 
 		@Override
@@ -1025,8 +1016,8 @@ public class OsrsAiBuddyPlugin extends Plugin
 		@Override
 		public void restored(Chat shown)
 		{
-			current = shown;
-			chatCounter = Math.max(chatCounter, chats.size());
+            ConversationLifecycle.removeLegacyPlaceholders(chats);
+            if (current != null && !chats.contains(current) && !current.messages.isEmpty()) { current = null; }
 			if (panel != null)
 			{
 				panel.refreshAll();

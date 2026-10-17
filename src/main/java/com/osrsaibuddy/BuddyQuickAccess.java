@@ -12,6 +12,7 @@ import net.runelite.client.util.Filepath;
 final class BuddyQuickAccess
 {
     static final String REPOSITORY = "https://github.com/D-AZ0617/osrs-ai-buddy";
+    static final String SPONSORS = "https://github.com/sponsors/D-AZ0617";
     private final Callable<Filepath> directory;
     private final URI artifact;
     private final Consumer<String> open;
@@ -23,7 +24,7 @@ final class BuddyQuickAccess
     void open(String action) throws Exception
     {
         if ("github".equals(action)) { browse.accept(REPOSITORY); return; }
-        if ("coffee".equals(action)) { return; }
+        if ("sponsors".equals(action)) { browse.accept(SPONSORS); return; }
         if ("plugin".equals(action))
         {
             if (artifact == null || !"file".equalsIgnoreCase(artifact.getScheme()))
@@ -34,10 +35,9 @@ final class BuddyQuickAccess
             if (path == null) { throw new IOException("The installed plugin folder could not be located."); }
             open.accept(path.toString()); return;
         }
-        if (!"data".equals(action) && !"conversations".equals(action) && !"information".equals(action))
+        if (!"conversations".equals(action) && !"information".equals(action))
         { throw new IllegalArgumentException("Unknown quick-access action"); }
         Filepath folder = directory.call(); folder.createDirectories();
-        if ("data".equals(action)) { open.accept(folder.toString()); return; }
         if ("conversations".equals(action))
         {
             Filepath file = folder.joinSegment(ChatStore.FILE_NAME);
@@ -45,17 +45,11 @@ final class BuddyQuickAccess
             open.accept(file.toString()); return;
         }
         Filepath information = folder.joinSegment("buddy-information.txt");
-        if (!information.exists())
+        // This is an app-generated guide: refresh it so existing installations receive updated help.
+        try (java.io.InputStream guide = BuddyQuickAccess.class.getResourceAsStream("buddy-information.txt"))
         {
-            information.write("OSRS AI Buddy\n\n"
-                + "Conversations are saved automatically in chats.json. This file can contain personal chat and account details.\n"
-                + "Use Clear or Delete in Buddy to remove conversation history. Do not edit chats.json while RuneLite is running.\n\n"
-                + "ChatGPT sign-in is stored separately, protected by your Windows account. Do not share the chatgpt subfolder. Use Log Out to clear that session.\n\n"
-                + "Plugin data folder: this folder.\nInstalled plugin folder: contains the plugin JAR, or compiled classes in a developer build.\n\n"
-                + "Documentation and source: " + REPOSITORY + "\n"
-                + "Privacy: " + REPOSITORY + "/blob/main/PRIVACY.md\n"
-                + "Support and updates: " + REPOSITORY + "/issues\n"
-                + "Buy me a coffee: work in progress.\n");
+            if (guide == null) { throw new IOException("The Getting Started guide is missing from this build."); }
+            information.write(guide.readAllBytes());
         }
         open.accept(information.toString());
     }

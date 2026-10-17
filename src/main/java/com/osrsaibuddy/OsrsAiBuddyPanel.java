@@ -103,6 +103,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 		default void signInChatgpt() { }
 		default void signOutChatgpt() { }
         default void openConfigurations() { }
+        default void conversationsOpened() { }
         default boolean configurationValue(String key) { return false; }
         default void changeConfiguration(String key, boolean enabled) { }
         default void openShortcut(String action) { }
@@ -115,6 +116,7 @@ class OsrsAiBuddyPanel extends PluginPanel
     private boolean configurationsVisible;
     final BuddySettingsPanel settings;
     final JPanel inbox = new TranscriptPanel();
+    final SupportFooter supportFooter;
 	final FlatButton newChat = new FlatButton(null, new Glyph(Glyph.Shape.PLUS, 14), "New chat");
 	final FlatButton menu = new FlatButton(null, new Glyph(Glyph.Shape.MORE, 14),
 		"Conversation actions, configurations and ChatGPT connection");
@@ -145,6 +147,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 	{
 		super(false);
 		this.host = host;
+        supportFooter = new SupportFooter(host::openShortcut);
         settings = new BuddySettingsPanel(new BuddySettingsPanel.Actions() {
             public boolean value(String key) { return host.configurationValue(key); }
             public void change(String key, boolean enabled) { host.changeConfiguration(key, enabled); }
@@ -225,7 +228,9 @@ class OsrsAiBuddyPanel extends PluginPanel
         inboxScroll.setBorder(null); inboxScroll.getViewport().setBackground(PanelStyle.BACKGROUND);
         inboxScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         inboxScroll.getVerticalScrollBar().setUnitIncrement(16);
-        center.add(inboxScroll, "inbox");
+        JPanel conversationsPage = new JPanel(new BorderLayout(0, 8)); conversationsPage.setOpaque(false);
+        conversationsPage.add(inboxScroll, BorderLayout.CENTER); conversationsPage.add(supportFooter, BorderLayout.SOUTH);
+        center.add(conversationsPage, "inbox");
         JScrollPane settingsScroll = new JScrollPane(settings);
         settingsScroll.setBorder(null); settingsScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         settingsScroll.getViewport().setBackground(PanelStyle.BACKGROUND); settingsScroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -319,6 +324,7 @@ class OsrsAiBuddyPanel extends PluginPanel
 	{
         banner.show(null, null, false);
 		// Refresh list asks the provider, as Test connection does: not while that can't be done.
+		composer.models.allowCustomModels = false;
 		composer.models.show(host.model(), host.modelChoices(), host.modelTip(), host.modelNote(), host.testProblem());
 		chatSelect.setEnabled(true);
 	}
@@ -330,7 +336,7 @@ class OsrsAiBuddyPanel extends PluginPanel
     }
 
     void showConfigurations() { configurationsVisible = true; refreshAll(); }
-    void showInbox() { configurationsVisible = false; inboxVisible = true; refreshAll(); }
+    void showInbox() { host.conversationsOpened(); configurationsVisible = false; inboxVisible = true; refreshAll(); }
     void showConversation() { configurationsVisible = false; inboxVisible = false; composer.setVisible(true); shownKey = ""; refreshAll(); }
 
     private void refreshInbox()
@@ -360,7 +366,7 @@ class OsrsAiBuddyPanel extends PluginPanel
             preview.setRows(3); preview.setOpaque(false); box.add(preview, BorderLayout.CENTER);
             java.awt.event.MouseAdapter click = new java.awt.event.MouseAdapter() { public void mouseClicked(java.awt.event.MouseEvent e) { host.selectChat(chat); showConversation(); } };
             for (Component child : new Component[]{box, headings, title, date, preview}) { child.addMouseListener(click); child.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR)); }
-            FlatButton open = new FlatButton("Open conversation", null, "Open conversation");
+            FlatButton open = new FlatButton("Open Conversation", null, "Open Conversation");
             open.addActionListener(e -> { host.selectChat(chat); showConversation(); }); box.add(open, BorderLayout.SOUTH);
             inbox.add(box);
         }

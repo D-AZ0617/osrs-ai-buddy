@@ -17,7 +17,7 @@ This is a disclosed derivative of brendanciccone/osrs-ai-chat, not a clean-room 
 
 Local build and test results are recorded in SUBMISSION.md. Tests use loopback stand-ins, not real accounts. A separate local developer build verified the ChatGPT flow before this project was rebranded; fresh sign-in under the new application name still requires user consent.
 
-Validation: all 370 tests passed on the official RuneLite launcher's Java 11.0.30 runtime. Production classes target Java 11. Automated tests use loopback stand-ins.
+Validation: all 377 tests passed on the official RuneLite launcher's Java 11.0.30 runtime. Production classes target Java 11. Automated tests use loopback stand-ins.
 
 Generated-by: OpenAI Codex
 

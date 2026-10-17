@@ -23,7 +23,7 @@ A friendly Old School RuneScape companion inside RuneLite. Ask what to train nex
 1. Open **OSRS AI Buddy** in the sidebar and select **⋯ → Sign In**.
 2. Sign in on OpenAI's website, choose your account/workspace, and review the requested ChatGPT plan access. Eligibility and limits are controlled by OpenAI; an eligible plan is required.
 3. Once connected, Buddy is ready to answer; no separate enable-requests switch is needed.
-4. Choose an available model next to Send; use Refresh list if needed.
+4. Buddy selects an account-listed lightweight model, preferring Luna, then GPT-5 mini. Use Refresh list if needed. Flagship models and custom model names are blocked; there is no heavyweight fallback.
 5. Ask a question. On Windows, ChatGPT sign-in is remembered automatically: your encrypted session is restored after restarts. Sign in once again when moving from the older memory-only build. Enable Share character overview only if you want personalized advice based on account progress.
 
 There is no API-key field, alternate-provider selector, custom endpoint, Claude integration, or local-model setup. Buddy never switches requests to separately billed API-key usage. Review credit and plan permissions on OpenAI's consent screen; usage limits can be managed in [ChatGPT settings](https://chatgpt.com/settings/usage).
@@ -37,7 +37,7 @@ Open **⋯ → Configurations** for Buddy’s settings page. Its controls use th
 - **Account context:** character overview, achievements/collections, and bank/inventory/gear, each opt-in.
 - **Knowledge sources:** OSRS Wiki searches and opt-in Wise Old Man history.
 - **Notifications:** choose reply alerts.
-- **Quick access:** saved conversations, plugin data folder, installed plugin folder, local plugin information, and GitHub. Buy me a coffee is shown disabled while the donation link is being prepared.
+- **Quick access:** Saved Conversations, Installed Plugin Folder, Getting Started, and GitHub Repository. The conversations screen has a single Buy Me A Coffee footer button linking to GitHub Sponsors; support is optional.
 
 The chat menu contains Rename, Clear, Delete, Configurations, ChatGPT connection status, and Sign In or Log Out. Clicking a chat title returns to the conversation inbox. New conversations start with the plus button. Empty inboxes show a muted, recessed gray message. Replies stay in Buddy's panel; game-chat mirroring and the Ask shortcut are removed. ChatGPT sign-in is always remembered on Windows, with encrypted local storage. Conversations are always saved locally; the history checkbox has been removed. Use Clear or Delete to remove a conversation. Local shortcuts never directly open credential records or execute the plugin JAR.
 
@@ -61,3 +61,7 @@ Collection-log totals and section flags come from game variables. Item details i
 
 Derived from Brendan Ciccone's BSD-licensed AI Chat plugin. See [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE). This is an independent project with its own configuration group, Java package and data directory. It does not import AI Chat settings, API keys, chats or saved sign-ins.
 
+
+Unsent plus-button drafts are not saved, repeated plus clicks reuse the draft, and deleting a chat returns to the inbox. Empty legacy Chat-number placeholders are removed without removing conversations containing messages. Getting Started refreshes the extensive local help guide, including a text mascot.
+
+Lightweight selection reduces accidental flagship usage, but does not reserve quota or guarantee unlimited messages. Model availability and plan-wide limits remain controlled by ChatGPT. Sending waits if no supported lightweight model is listed.

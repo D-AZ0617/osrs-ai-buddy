@@ -19,12 +19,12 @@ public class BuddySettingsPanelTest
         public boolean confirm(String warning) { return permit; }
         public void open(String action) { opened.add(action); }
     }
-    @Test public void noHistoryCheckboxAndCoffeeRemainsDisabled() throws Exception
+    @Test public void noHistoryCheckboxDataFolderOrDonationButtonInSettings() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {
             Actions actions = new Actions(); BuddySettingsPanel panel = new BuddySettingsPanel(actions);
             assertFalse(panel.options.containsKey("rememberChats"));
-            assertFalse(panel.shortcuts.get("coffee").isEnabled()); panel.shortcuts.get("coffee").doClick(); assertTrue(actions.opened.isEmpty());
+            assertFalse(panel.shortcuts.containsKey("coffee")); assertFalse(panel.shortcuts.containsKey("data")); assertTrue(actions.opened.isEmpty());
             panel.shortcuts.get("github").doClick(); assertEquals(java.util.Collections.singletonList("github"), actions.opened);
         });
     }

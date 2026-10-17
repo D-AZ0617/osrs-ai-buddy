@@ -1,0 +1,259 @@
+  .---------------------------------------------------------------------.
+  |                                                                     |
+  |          .--------.           *                                     |
+  |         /  .----.  \                  OSRS AI BUDDY                  |
+  |        |  / o  o\  |           Your Gielinor companion               |
+  |        |  |  __ |  |                                                |
+  |         \  \___/  /              Ask. Plan. Explore.                 |
+  |          '------'                                                   |
+  |                                                                     |
+  '----------------------.  .-------------------------------------------'
+                          \/
+
+GETTING STARTED
+==============
+Guide revision: 2026-10-15
+Project: https://github.com/D-AZ0617/osrs-ai-buddy
+
+Welcome to OSRS AI Buddy, an open-source companion inside RuneLite.
+Use it to plan training, choose account goals, prepare for quests or bosses,
+and understand what to do next using the account details you choose to share.
+
+Buddy gives advice. It does not click, move your character, fight, trade,
+or otherwise play the game for you. Treat its answers as suggestions and
+check important requirements against the OSRS Wiki.
+
+1. YOUR FIRST CONVERSATION
+--------------------------
+- Open OSRS AI Buddy from RuneLite's sidebar.
+- The starting screen is Conversations. Your existing chats appear as cards.
+- Open the three-dot menu and choose Sign In to connect your ChatGPT plan.
+- Complete authorization on OpenAI's website. Review its permissions and
+  usage limits there. Buddy does not ask for an API key.
+- Press + when YOU want to start a new conversation.
+- Choose an available model beside Send, then type a question and send it.
+- Suggested starting questions fill the input only. They never send a message.
+
+A new conversation remains an unsaved draft until you send its first message.
+Repeated + clicks reuse an empty draft instead of creating numbered chats.
+Returning to Conversations does not add an unsent draft to your history.
+The first sent question becomes the conversation's initial title.
+
+Try questions such as:
+  "Use my shared account progress to suggest my next three goals."
+  "What should I finish before attempting my first raid?"
+  "Check the Wiki for a training method that fits my levels."
+  "Which items are missing from the collection-log page I just opened?"
+
+2. FINDING AND MANAGING CONVERSATIONS
+-------------------------------------
+Each conversation card shows its title, latest message date/time and a short
+preview. Click a card or Open Conversation to return to it. Click the title
+at the top of an open chat to return to Conversations.
+
+With no conversation history, a recessed gray message says:
+  Future conversations will appear here.
+
+The three-dot menu includes:
+  Rename          Give the open conversation a more useful title.
+  Clear           Remove the conversation's messages and AI summary.
+  Delete          Remove the conversation and return to Conversations.
+  Configurations  Open Buddy's settings and Quick Access links.
+  ChatGPT status  Show whether your account is connected.
+  Sign In/Log Out  Connect or disconnect your ChatGPT account.
+
+Deleting a chat never creates another one and never opens an older chat.
+Old, empty automatic "Chat 1", "Chat 2", etc. placeholders are cleaned up.
+Conversations containing messages are preserved.
+
+3. CONFIGURATIONS: CHOOSE WHAT BUDDY CAN SEE
+--------------------------------------------
+Account sharing is off by default. Enable only the details you want to use.
+These settings affect new lookups; they cannot retract information already
+sent to a service or remove information from existing chat history.
+
+ACCOUNT CONTEXT
+  Share Character Overview
+    Shares your character name, account type, levels, quest progress, and
+    requested Slayer-task and achievement-diary information with OpenAI.
+
+  Share Achievements & Collections
+    Allows account overviews, skill XP and boosted levels, quest states,
+    known combat-achievement flags, collection-log observations, selected
+    prayer/Slayer unlocks and selected currencies to be used as context.
+
+  Share Bank, Inventory & Gear
+    Allows equipment, current inventory and the last observed bank snapshot.
+    Open your bank with sharing enabled to make its contents available.
+    An unopened or unseen bank is unknown, not empty.
+
+KNOWLEDGE SOURCES
+  Allow OSRS Wiki Searches
+    Allows relevant Wiki searches and page reads. Search terms can reflect
+    your question and anything shared with Buddy. Results can include links.
+    GE price lookups use RuneLite's price data.
+
+  Use Wise Old Man History
+    Reads your existing public WOM profile, tracked skills/XP, boss kills,
+    activities, gains, records, achievements and related tracking history.
+    It does not create tracking, update a profile or upload your live game
+    progress to WOM. Missing or unranked data does not mean zero progress.
+    WOM can be older than your current in-game account state.
+
+NOTIFICATIONS
+  Reply Alerts
+    Enables or disables reply notifications. RuneLite's notification settings
+    determine whether notifications appear while the game is focused.
+    Buddy's replies stay in the sidebar; they are not mirrored to game chat.
+
+4. COLLECTION LOGS: KNOWN, MISSING AND UNKNOWN
+---------------------------------------------
+A completed or incomplete collection section is not the same thing as knowing
+every individual item in it.
+
+With Share Achievements & Collections enabled, open your OWN collection log
+and browse the pages relevant to your question. Buddy observes each page's
+obtained/missing item status, quantities, page name and observation time.
+It checks that the page header totals agree with the item grid before
+accepting a snapshot, to avoid using partially loaded pages.
+
+After observing a page, you can close the log and ask about those items during
+the same session. Unvisited pages/items remain UNKNOWN, not automatically
+missing. Missing status describes the observed snapshot, which may become old.
+House adventure-log views are excluded to avoid reading someone else's log.
+
+These observations stay in memory. Account transitions, disabling sharing,
+or shutting down Buddy clear them. Existing chat messages may still contain
+previously shared details. WOM does not supply a private item-level log.
+
+5. YOUR CHATGPT CONNECTION
+---------------------------
+On Windows, Buddy remembers your authorized session using encryption tied
+to your Windows user account. Sign in once in the updated build; ordinary
+restarts should restore the session and refresh access tokens when needed.
+
+There is no separate "allow answers" or "remember login" checkbox.
+Signing out stops requests, attempts to revoke the renewable session and
+clears the locally saved tokens. Revoked access or expiry of the renewable
+session can still require another sign-in. On other operating systems,
+persistent protection is not implemented yet and sign-in is session-only.
+
+Buddy uses your authorized ChatGPT plan. It does not silently fall back to a
+separately billed OpenAI API key. Eligibility, plan limits and any credit
+permissions are controlled by OpenAI. Review app access and usage at:
+  https://chatgpt.com/settings/usage
+
+6. LOCAL FILES AND QUICK ACCESS
+--------------------------------
+Conversations are saved automatically on this PC. There is no save-history
+checkbox. Clear or Delete chats in Buddy to remove history.
+
+Saved Conversations
+  Opens chats.json in your computer's default application for JSON files.
+  This file can contain personal messages and shared account information.
+  Do not edit it while RuneLite is running, and do not post it publicly.
+  Long chats may be summarized; the saved format keeps the latest 200
+  messages plus older messages still needed for the conversation.
+
+Installed Plugin Folder
+  Opens the folder containing Buddy's installed JAR. A developer build may
+  instead show compiled classes. The button never executes the JAR.
+
+Getting Started
+  Opens this guide as buddy-information.txt in Buddy's data folder.
+  Opening the guide refreshes this generated file to the current build's
+  help text. It is not intended as a place for personal notes.
+
+GitHub Repository
+  Opens source code, documentation and updates in your web browser.
+
+Other local files:
+  chats.lock              Prevents competing writers to conversation history.
+  chatgpt/                Contains registration data and the protected session.
+  buddy-information.txt   This generated help guide.
+
+Do not share the chatgpt subfolder. Use Log Out to clear the saved session.
+Programs running as your Windows user may also access that user's session.
+Only one RuneLite window can own Buddy's saved chats at a time. If another
+window owns them, Buddy reports that it cannot save this window's history.
+
+7. PRIVACY AND DATA SOURCES
+----------------------------
+Questions, relevant chat history/summaries and permitted tool results go to
+OpenAI. Wiki searches go to the OSRS Wiki. Enabled WOM lookups send your
+current character name to Wise Old Man; results may then be used by OpenAI.
+Each contacted service can see your IP address.
+
+These services are not controlled or verified by RuneLite developers.
+There is no project-operated relay server. Buddy never reads or sends your
+Jagex password or launcher login credentials.
+
+Full privacy details:
+  https://github.com/D-AZ0617/osrs-ai-buddy/blob/main/PRIVACY.md
+
+8. TROUBLESHOOTING
+-------------------
+"Not connected" / cannot send
+  Use Sign In from the chat menu and choose an available model. If a token
+  was revoked or its renewable session expired, reconnect through Sign In.
+
+No models in the list
+  Confirm ChatGPT is connected, then use the model picker's refresh action.
+  Availability is determined by the authorized OpenAI account/workspace.
+
+Buddy cannot see my account details
+  Log in to the game and enable the relevant sharing setting. Ask Buddy to
+  use its tools instead of guessing. Opening the bank/log can supply data.
+
+WOM is missing, stale or rate limited
+  The account needs existing WOM tracking. This plugin does not create it.
+  Requests are briefly cached and spaced to respect the free service.
+  Rate-limit responses impose a cooldown; try again later.
+
+No saved conversation file yet
+  Press + and send your first message. Allow a moment for the save to finish.
+  Empty unsent drafts do not produce saved conversation entries.
+
+Changes do not appear in a developer client
+  Restart the developer build. The regular Jagex-launched RuneLite cannot
+  load this unpublished custom plugin until it is accepted into Plugin Hub.
+  Development login may require a temporary local Jagex credential handoff;
+  that is separate from Buddy's saved ChatGPT authorization.
+
+The assistant gives a wrong answer
+  Ask it to check the Wiki and state its sources. Account observations and
+  public trackers can be incomplete or old; AI answers are not guarantees.
+
+9. SUPPORT DEVELOPMENT
+------------------------
+The Conversations screen has one optional Buy Me A Coffee button. It opens:
+  https://github.com/sponsors/D-AZ0617
+
+Donations use GitHub Sponsors; no separate Buy Me A Coffee service link is
+configured. Sponsoring is optional and does not unlock plugin features or
+replace your ChatGPT plan. Buddy itself does not process payments.
+
+Source and project documentation:
+  https://github.com/D-AZ0617/osrs-ai-buddy
+Report reproducible bugs, with private information removed:
+  https://github.com/D-AZ0617/osrs-ai-buddy/issues
+
+10. CREDITS
+------------
+OSRS AI Buddy is maintained by D-AZ0617 and is a derivative of Brendan
+Ciccone's BSD-licensed AI Chat plugin. Original license and attribution are
+preserved. See LICENSE and NOTICE.md in the repository for full details.
+
+Independent project; not affiliated with or endorsed by Jagex, RuneLite,
+OpenAI, Wise Old Man or the OSRS Wiki.
+
+Thanks for bringing Buddy along on your next adventure.
+
+LIGHTWEIGHT MODELS
+Buddy offers only account-listed general-purpose Luna and GPT-5 mini models.
+Luna is preferred; an available saved mini choice is respected. Flagship and
+custom model names are blocked. If no supported model is listed, refresh the
+list; sending pauses instead of falling back to a flagship. This reduces
+accidental heavyweight use, but does not reserve quota or guarantee unlimited
+messages. ChatGPT controls shared plan limits and model availability.
+

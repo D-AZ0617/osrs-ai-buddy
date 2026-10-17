@@ -7,7 +7,7 @@ Configuration and storage namespace: osrs-ai-buddy
 Packaging: standard (no extra production dependencies)
 Icon: 48x48 root icon.png, 32x32 sidebar resource, PNG with transparency
 Bytecode target: Java 11
-Local verification: 370 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
+Local verification: 377 tests passed on the official RuneLite launcher Java 11.0.30 runtime, zero failures/errors. This is a build/test result, not confirmation of in-game behavior.
 
 The upstream multi-provider implementations and their tests were removed; ChatGPT-only configuration, scoped registration storage and Windows-protected persistent session behavior have new tests. Existing chat, privacy-gate, tool, UI and persistence tests remain.
 

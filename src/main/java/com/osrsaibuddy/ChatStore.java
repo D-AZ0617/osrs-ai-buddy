@@ -66,7 +66,7 @@ final class ChatStore
 	static String toJson(Gson gson, List<Chat> chats, Chat current)
 	{
 		Saved saved = new Saved();
-		saved.current = current == null ? null : current.id;
+		saved.current = current == null || !chats.contains(current) ? null : current.id;
 		saved.chats = new ArrayList<>();
 		for (Chat c : chats)
 		{

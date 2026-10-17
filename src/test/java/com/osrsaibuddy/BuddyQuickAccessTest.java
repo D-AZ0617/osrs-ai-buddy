@@ -22,10 +22,9 @@ public class BuddyQuickAccessTest
         Files.writeString(folder.resolve("chats.json"), "{}");
         List<String> opened = new ArrayList<>();
         BuddyQuickAccess access = new BuddyQuickAccess(() -> scoped(folder), null, opened::add, ignored -> fail());
-        access.open("conversations"); access.open("information"); access.open("data");
+        access.open("conversations"); access.open("information");
         assertEquals(folder.resolve("chats.json").toString(), opened.get(0));
         assertEquals(folder.resolve("buddy-information.txt").toString(), opened.get(1));
-        assertEquals(folder.toString(), opened.get(2));
         assertTrue(Files.readString(folder.resolve("buddy-information.txt")).contains("Do not share the chatgpt subfolder"));
     }
     @Test public void pluginShortcutOpensFolderAndNeverExecutesJar() throws Exception
@@ -35,11 +34,12 @@ public class BuddyQuickAccessTest
         new BuddyQuickAccess(() -> scoped(folder), folder.resolve("buddy.jar").toUri(), opened::add, ignored -> fail()).open("plugin");
         assertEquals(folder.toString(), opened.get(0));
     }
-    @Test public void repositoryIsFixedAndCoffeeDoesNothing() throws Exception
+    @Test public void repositoryAndSponsorsHaveFixedPublicDestinations() throws Exception
     {
         List<String> links = new ArrayList<>();
         BuddyQuickAccess access = new BuddyQuickAccess(() -> { throw new AssertionError(); }, null, ignored -> fail(), links::add);
-        access.open("coffee"); assertTrue(links.isEmpty());
+        access.open("sponsors"); assertEquals(java.util.Collections.singletonList(BuddyQuickAccess.SPONSORS), links);
+        links.clear();
         access.open("github"); assertEquals(java.util.Collections.singletonList(BuddyQuickAccess.REPOSITORY), links);
     }
     @Test(expected = IllegalArgumentException.class) public void arbitraryPathsAndCredentialShortcutsAreRejected() throws Exception
