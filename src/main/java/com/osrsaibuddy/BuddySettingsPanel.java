@@ -38,9 +38,7 @@ final class BuddySettingsPanel extends JPanel implements javax.swing.Scrollable
         heading("Quick access");
         JTextArea note = PanelStyle.textArea("Conversations save automatically on this PC.");
         note.setForeground(PanelStyle.MUTED_COLOR); add(note);
-        shortcut("information", "Getting Started", "Open a local guide to Buddy's files, privacy and support.");
-        shortcut("conversations", "Saved Conversations", "Open readable conversation files. They can contain personal chat and account details.");
-        shortcut("plugin", "Installed Plugin Folder", "Show the installed plugin's folder; does not execute its JAR.");
+        shortcut("information", "Getting Started", "Read the online Getting Started guide.");
         shortcut("github", "GitHub Repository", "Open the OSRS AI Buddy source and documentation.");
         refresh();
     }

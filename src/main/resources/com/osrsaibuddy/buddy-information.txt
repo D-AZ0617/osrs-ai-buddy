@@ -146,23 +146,11 @@ permissions are controlled by OpenAI. Review app access and usage at:
 Conversations are saved automatically on this PC. There is no save-history
 checkbox. Clear or Delete chats in Buddy to remove history.
 
-Saved Conversations
-  Opens conversations/, with one readable Markdown (.md) transcript per chat
-  and README.md as an index. Titles, timestamps and message formatting are kept.
-  These files can contain personal messages and shared account information.
-  Generated transcripts are refreshed automatically; edits are not imported.
-  Clear or Delete in Buddy updates/removes the generated copy. Do not post it publicly.
-  Long chats may be summarized; the saved format keeps the latest 200
-  messages plus older messages still needed for the conversation.
-
-Installed Plugin Folder
-  Opens the folder containing Buddy's installed JAR. A developer build may
-  instead show compiled classes. The button never executes the JAR.
-
 Getting Started
-  Opens this guide as buddy-information.txt in Buddy's data folder.
-  Opening the guide refreshes this generated file to the current build's
-  help text. It is not intended as a place for personal notes.
+  Opens the online setup guide in your web browser.
+  Conversations remain available inside Buddy. Readable Markdown copies are
+  saved in .runelite/plugin-data/osrs-ai-buddy/conversations/ for manual access.
+  Buddy does not open local files, folders or applications.
 
 GitHub Repository
   Opens source code, documentation and updates in your web browser.

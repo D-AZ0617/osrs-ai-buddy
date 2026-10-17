@@ -702,9 +702,7 @@ public class OsrsAiBuddyPlugin extends Plugin
         executor.execute(() -> {
             try
             {
-                java.security.CodeSource source = OsrsAiBuddyPlugin.class.getProtectionDomain().getCodeSource();
-                new BuddyQuickAccess(this::getPluginDirectory, source == null ? null : source.getLocation().toURI(),
-                    net.runelite.client.util.LinkBrowser::open, net.runelite.client.util.LinkBrowser::browse).open(action);
+                new BuddyQuickAccess(net.runelite.client.util.LinkBrowser::browse).open(action);
             }
             catch (Exception failure)
             {
