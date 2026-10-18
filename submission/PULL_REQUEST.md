@@ -17,8 +17,10 @@ This is a disclosed derivative of [Brendan Ciccone's AI Chat](https://github.com
 
 ### Validation
 
-379 automated tests passed on the official RuneLite launcher Java 11.0.30 runtime; production bytecode targets Java 11. Tests use local stand-ins and synthetic credentials. The user verified in-game developer-client login, ChatGPT replies and live account/WOM tools. These checks do not replace Hub review, particularly for OAuth callbacks and Windows native session protection.
+386 automated tests passed on the official RuneLite launcher Java 11.0.30 runtime; production bytecode targets Java 11. Tests use local stand-ins and synthetic credentials. The user verified in-game developer-client login, ChatGPT replies and live account/WOM tools. These checks do not replace Hub review, particularly for OAuth callbacks and Windows native session protection.
 
 The manifest includes the third-party data-submission warning. No credentials, private chats, game-login files or personal configuration are included in the submitted repository.
 
 Generated-by: OpenAI Codex
+
+Wiki integration retained: deterministic article/contributor/license credits, persistent source records through saved chats and summaries, bounded five-minute memory cache and shared Retry-After/maxlag cooldown. These changes do not claim that the Wiki has approved paid-provider use or sponsorship; policy clarification remains outstanding.

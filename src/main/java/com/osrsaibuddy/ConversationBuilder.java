@@ -237,7 +237,7 @@ final class ConversationBuilder
 	 */
 	static Chat.Message applySummary(Chat chat, List<Chat.Message> old, String summary, Chat.Message question)
 	{
-		chat.summary = summary.trim();
+		chat.summary = summary.trim() + WikiAttribution.notice(chat.wikiSources);
 		chat.summaryVersion++;
 		for (Chat.Message m : old)
 		{

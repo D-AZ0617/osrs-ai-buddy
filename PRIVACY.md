@@ -37,3 +37,12 @@ Signing out removes saved tokens even if remote revocation fails. Corrupt or ina
 OSRS AI Buddy uses its own storage and does not migrate credentials or account data from AI Chat. OpenAI's and the Wiki's privacy policies apply to their services.
 
 Unsent drafts stay out of saved history. Empty automatically named legacy placeholders are pruned; chats containing messages are preserved. The app-generated Getting Started file is refreshed from the bundled guide when opened.
+## Wiki attribution and responsible requests
+
+The Wiki integration remains enabled. Buddy asks the AI to cite specific retrieved articles beside supported claims and to distinguish inference from sourced information. Independently of model wording, completed and preserved partial replies include article links, contributor-history links, a CC BY-NC-SA 3.0 notice, and an indication that Wiki-derived material is adapted or summarized. The reference list covers pages retrieved during the conversation; it is not a guarantee that every AI claim is supported.
+
+Source records survive chat restoration, summaries and generated Markdown transcripts. Clearing a chat clears its source records. Previously saved chats without source records are not retroactively given guessed citations. The content license applies to Wiki-derived material, separately from the plugin code and private account data.
+
+Successful public Wiki responses can be cached in memory for five minutes, with at most 32 entries and 128 Ki characters per entry. Responses are capped at 1 MiB, requests remain serialized, and HTTP 429/503 or MediaWiki maxlag/ratelimited errors establish a shared cooldown. Retry-After seconds and HTTP dates are respected; without a valid delay the cooldown is 60 seconds. Queued requests do not keep hitting the Wiki during the pause. Cache use still obeys opt-out and cancellation gates.
+
+These changes address identifiable attribution and traffic-handling gaps. They do not establish permission or settle the Wiki policy's non-commercial-use interpretation for paid AI services and optional sponsorship. That question remains subject to Wiki/reviewer clarification. Buddy has no Wiki-editing or model-training workflow.

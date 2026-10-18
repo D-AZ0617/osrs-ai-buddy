@@ -9,3 +9,5 @@ The icon was generated with OpenAI's built-in image-generation tool for this pro
 The passive collection-item script identifier and argument convention were verified against [WikiSync](https://github.com/weirdgloop/WikiSync) (BSD 2-Clause, andmcadams). Buddy implements its own in-memory observer and does not copy or invoke WikiSync's full-log sync mechanism. Progress identifiers come from RuneLite 1.13.2 generated API constants; WOM routes follow the official Wise Old Man v2 API documentation/source.
 
 The collection-page widget layout, header convention and opacity-based obtained status were verified against Evan Sloan’s BSD-licensed [Collection Log plugin](https://github.com/evansloan/collection-log). Buddy uses an independent validated, memory-only page reader and does not upload to collectionlog.net.
+
+Wiki article material is separately licensed by its contributors under CC BY-NC-SA 3.0 (https://creativecommons.org/licenses/by-nc-sa/3.0/). Retrieved article/contributor-history links and adaptation notices are attached to replies and saved source records. This is separate from the BSD software license; Wiki endorsement or blanket permission is not implied.

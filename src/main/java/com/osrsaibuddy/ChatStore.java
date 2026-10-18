@@ -41,6 +41,7 @@ final class ChatStore
 		boolean defaultName;
 		boolean namedByPlayer;
 		String summary;
+        List<String> wikiSources;
 		int summaryVersion;
 		/** See {@link Chat#leftOut}: over every save so far. */
 		int leftOut;
@@ -77,6 +78,7 @@ final class ChatStore
 			sc.defaultName = c.defaultName;
 			sc.namedByPlayer = c.namedByPlayer;
 			sc.summary = c.summary;
+            sc.wikiSources = new ArrayList<>(c.wikiSources);
 			sc.summaryVersion = c.summaryVersion;
 			List<Chat.Message> messages = new ArrayList<>(c.messages);
 			messages.remove(c.leftOutNote);
@@ -159,6 +161,7 @@ final class ChatStore
 			c.namedByPlayer = sc.namedByPlayer;
 			c.summary = sc.summary == null || sc.summary.trim().isEmpty() ? null : sc.summary;
 			c.summaryVersion = sc.summaryVersion;
+            c.wikiSources.addAll(WikiAttribution.valid(sc.wikiSources));
 			c.leftOut = Math.max(0, sc.leftOut);
 			c.leftOutSummarized = Math.max(0, Math.min(c.leftOut, sc.leftOutSummarized));
 			if (sc.messages != null)

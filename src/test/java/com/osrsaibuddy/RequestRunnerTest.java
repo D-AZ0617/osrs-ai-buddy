@@ -109,6 +109,7 @@ public class RequestRunnerTest
 		BooleanSupplier wanted;
 		Consumer<String> activity;
 		Runnable started;
+        ToolBox lastTools;
 		/** The plugin's tools, made from stand-ins: a Wiki that never sends anything, no prices, no game. */
 		final ToolBox.Parts parts = new ToolBox.Parts(new WikiClient(new OkHttpClient(), new Gson(), () -> false),
 			new NoPrices(), new NoGame(), Runnable::run, scheduler, () -> true, () -> character);
@@ -137,7 +138,7 @@ public class RequestRunnerTest
 			this.wanted = wanted;
 			this.activity = activity;
 			this.started = started;
-			return parts.forRequest(setup, wanted, activity, started);
+			return lastTools = parts.forRequest(setup, wanted, activity, started);
 		}
 
 		@Override
@@ -295,6 +296,21 @@ public class RequestRunnerTest
 	}
 
 	@Test
+    public void citationsAreAddedEvenWhenTheModelOmitsThem()
+    {
+        send("How do I train Slayer?");
+        host.lastTools.sources.accept(Collections.singletonList("https://oldschool.runescape.wiki/w/Slayer"));
+        runEdt();
+        api.listener().onReply(reply("Try a Slayer task.", 100, 20));
+        runEdt();
+        Chat.Message answer = host.ended.get(host.ended.size() - 1);
+        assertTrue(answer.text.startsWith("Try a Slayer task."));
+        assertTrue(answer.text.contains("action=history"));
+        assertTrue(answer.text.contains(WikiAttribution.LICENSE));
+        assertEquals(Collections.singleton("https://oldschool.runescape.wiki/w/Slayer"), chat.wikiSources);
+    }
+
+    @Test
 	public void theReplyStreamsInThenLandsOnce()
 	{
 		Chat.Message question = send("How do I get to Zulrah?");

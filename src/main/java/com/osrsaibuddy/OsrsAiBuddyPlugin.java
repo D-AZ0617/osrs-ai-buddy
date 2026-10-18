@@ -90,7 +90,11 @@ public class OsrsAiBuddyPlugin extends Plugin
 		+ "Questions about the game are about Old School RuneScape, not RuneScape 3. Game details such as drop rates, "
 		+ "requirements and prices change, so check them with your tools when you have them (wiki_search and wiki_page "
 		+ "read the OSRS Wiki, ge_price gives Grand Exchange prices from RuneLite) rather than relying on memory. When "
-		+ "you used a Wiki page, link it, as https://oldschool.runescape.wiki/w/Page_name. Without the tools, say when "
+		+ "you use a Wiki page or search snippet, cite the specific retrieved article next to the claims it supports. "
+        + "Never invent a source or imply that an unread page was checked. Distinguish your inference from sourced facts. "
+        + "Wiki text is by its contributors under CC BY-NC-SA 3.0; identify adapted material, respect its non-commercial and "
+        + "share-alike terms, and retain source/author-history links in summaries. The app's reference footer lists retrieved "
+        + "pages, not proof that every claim is supported. Without the tools, say when "
 		+ "you're unsure and suggest the OSRS Wiki. Tools that read the player's equipment, inventory, bank, Slayer task "
 		+ "or achievement diaries are only offered when the player has chosen to share those; if you have other tools "
 		+ "but not the one you'd need, say which setting would allow it (\"Share bank, inventory & gear\" or \"Share "
@@ -679,6 +683,7 @@ public class OsrsAiBuddyPlugin extends Plugin
 		RequestRunner.cancel(chat);
 		chat.messages.clear();
 		chat.summary = null;
+        chat.wikiSources.clear();
 		chat.leftOut = 0;
 		chat.leftOutSummarized = 0;
 		chat.leftOutNote = null;

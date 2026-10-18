@@ -34,6 +34,7 @@ final class ChatTranscripts
             index.append("- [").append(title.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]").replace('\n', ' ').replace('\r', ' '))
                 .append("](").append(filename).append(")\n");
             StringBuilder text = new StringBuilder("# ").append(title.replace('\n', ' ').replace('\r', ' ')).append("\n\n");
+            text.append(WikiAttribution.notice(chat.wikiSources)).append('\n');
             if (chat.createdAt > 0) { text.append("Created: ").append(Instant.ofEpochMilli(chat.createdAt)).append("\n\n"); }
             if (chat.leftOut > 0) { text.append("Earlier messages omitted from saved history: ").append(chat.leftOut).append("\n\n"); }
             if (chat.summary != null && !chat.summary.isEmpty()) { text.append("## Earlier Conversation Summary\n\n").append(chat.summary).append("\n\n"); }

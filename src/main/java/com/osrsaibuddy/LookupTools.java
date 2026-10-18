@@ -267,7 +267,8 @@ final class LookupTools implements ChatApi.ToolRunner
 			@Override
 			public void onResult(WikiClient.Search search)
 			{
-				report.write(SEARCHED_WIKI + quote(query), () -> ChatApi.ToolResult.ok(searchText(query, search)));
+				report.write(SEARCHED_WIKI + quote(query), () -> WikiAttribution.result(searchText(query, search),
+                    search.results.stream().limit(SEARCH_RESULTS).map(result -> result.url).collect(java.util.stream.Collectors.toList())));
 			}
 
 			@Override
@@ -308,7 +309,7 @@ final class LookupTools implements ChatApi.ToolRunner
 			public void onResult(WikiClient.Page page)
 			{
 				report.write(READ_WIKI_PAGE + quote(page.title) + sectionName(page, part),
-					() -> ChatApi.ToolResult.ok(pageText(page, part)));
+					() -> WikiAttribution.result(pageText(page, part), java.util.Collections.singletonList(page.url)));
 			}
 
 			@Override

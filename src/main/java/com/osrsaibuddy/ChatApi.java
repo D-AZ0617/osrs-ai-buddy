@@ -102,6 +102,7 @@ interface ChatApi
 	{
 		final String content;
 		final boolean error;
+        List<String> wikiSources = java.util.Collections.emptyList();
 
 		private ToolResult(String content, boolean error)
 		{

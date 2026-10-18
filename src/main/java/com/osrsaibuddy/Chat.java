@@ -75,6 +75,7 @@ class Chat
 	 * chat gets long.
 	 */
 	String summary;
+    final java.util.Set<String> wikiSources = new java.util.LinkedHashSet<>();
 	/** Goes up with every new summary. */
 	int summaryVersion;
 	/**

@@ -157,6 +157,18 @@ final class WikiClient
 	/** Requests waiting for the one in flight to finish. */
 	private final Deque<Runnable> waiting = new ArrayDeque<>();
 	private boolean busy;
+    private final java.util.function.LongSupplier clock;
+    private long cooldownUntil;
+    private static final long CACHE_MILLIS = 300_000;
+    private static final int MAX_RESPONSE_BYTES = 1_048_576;
+    private static final class Cached
+    {
+        final String text; final long expires;
+        Cached(String text, long expires) { this.text = text; this.expires = expires; }
+    }
+    private final java.util.Map<String, Cached> cache = new java.util.LinkedHashMap<String, Cached>(32, .75f, true) {
+        @Override protected boolean removeEldestEntry(java.util.Map.Entry<String, Cached> entry) { return size() > 32; }
+    };
 
 	WikiClient(OkHttpClient http, Gson gson, BooleanSupplier allowed)
 	{
@@ -165,6 +177,12 @@ final class WikiClient
 
 	WikiClient(OkHttpClient http, Gson gson, BooleanSupplier allowed, HttpUrl api, long timeoutMillis)
 	{
+        this(http, gson, allowed, api, timeoutMillis, System::currentTimeMillis);
+    }
+
+    WikiClient(OkHttpClient http, Gson gson, BooleanSupplier allowed, HttpUrl api, long timeoutMillis, java.util.function.LongSupplier clock)
+    {
+        this.clock = clock;
 		this.http = http.newBuilder()
 			.cache(null)
 			.connectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
@@ -250,6 +268,20 @@ final class WikiClient
 			notSent = !wanted.getAsBoolean() ? STOPPED : !allowed.getAsBoolean() ? TURNED_OFF : null;
 			if (notSent == null)
 			{
+                Cached hit;
+                boolean cooling;
+                synchronized (this) {
+                    hit = cache.get(request.url().toString());
+                    if (hit != null && hit.expires <= clock.getAsLong()) { cache.remove(request.url().toString()); hit = null; }
+                    cooling = cooldownUntil > clock.getAsLong();
+                }
+                if (hit != null) {
+                    finished();
+                    try { answer(200, hit.text, listener, read); }
+                    catch (RuntimeException failure) { log.warn("Wiki cache listener failed", failure); }
+                    return;
+                }
+                if (cooling) { finished(); listener.onError("cooldown", "The Wiki has requested a pause. Answer without a fresh Wiki lookup and try later."); return; }
 				http.newCall(request).enqueue(callback(listener, read));
 				return;
 			}
@@ -292,7 +324,12 @@ final class WikiClient
 				String text;
 				try (ResponseBody body = response.body())
 				{
-					text = body == null ? "" : body.string();
+                    if (body == null) { text = ""; }
+                    else {
+                        okio.BufferedSource source = body.source();
+                        if (source.request(MAX_RESPONSE_BYTES + 1L)) { throw new IOException("Wiki response exceeds size limit"); }
+                        text = source.readUtf8();
+                    }
 				}
 				catch (IOException e)
 				{
@@ -300,8 +337,27 @@ final class WikiClient
 					listener.onError(null, unreachable(e));
 					return;
 				}
-				finished();
-				answer(response.code(), text, listener, read);
+                boolean apiBusy = false;
+                boolean cacheable = false;
+                try {
+                    JsonObject value = gson.fromJson(text, JsonObject.class);
+                    cacheable = value != null && !value.has("error");
+                    if (value != null && value.has("error") && value.get("error").isJsonObject()) {
+                        String code = string(value.getAsJsonObject("error"), "code");
+                        apiBusy = "maxlag".equals(code) || "ratelimited".equals(code);
+                    }
+                } catch (RuntimeException ignored) { }
+                synchronized (WikiClient.this) {
+                    long now = clock.getAsLong();
+                    if (response.code() == 429 || response.code() == 503 || apiBusy) {
+                        cooldownUntil = Math.max(cooldownUntil, retryTime(response.header("Retry-After"), now));
+                    }
+                    else if (response.isSuccessful() && cacheable && text.length() <= 131072) {
+                        cache.put(response.request().url().toString(), new Cached(text, now + CACHE_MILLIS));
+                    }
+                }
+                finished();
+                answer(response.code(), text, listener, read);
 			}
 		};
 	}
@@ -398,6 +454,18 @@ final class WikiClient
 		String detail = info == null ? "" : ": " + ChatApi.shorten(info, 200);
 		return "The Wiki turned the request down" + (code == null ? "" : " (" + code + ")") + detail;
 	}
+
+    static long retryTime(String header, long now)
+    {
+        if (header != null) {
+            try { long seconds = Long.parseLong(header.trim()); if (seconds > 0) { return Math.addExact(now, Math.multiplyExact(seconds, 1000)); } }
+            catch (NumberFormatException ignored) { }
+            catch (ArithmeticException overflow) { return Long.MAX_VALUE; }
+            try { long date = java.time.ZonedDateTime.parse(header, java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli(); if (date > now) { return date; } }
+            catch (java.time.DateTimeException ignored) { }
+        }
+        return now + 60_000;
+    }
 
 	private static String unreachable(IOException e)
 	{

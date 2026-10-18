@@ -66,6 +66,7 @@ final class ToolBox implements ChatApi.ToolRunner
 	}
 
 	private AccountContextTools extra;
+    Consumer<List<String>> sources = ignored -> { };
     private final LookupTools lookups;
 	private final GameDataTools gameData;
 	/** Told when a call starts, on the provider's thread, so the panel can say it's looking things up. */
@@ -108,7 +109,10 @@ final class ToolBox implements ChatApi.ToolRunner
 		// Each runner checks its own settings again, so a call to a tool that wasn't offered is turned down there.
 		if (LookupTools.handles(name))
 		{
-			lookups.run(name, input, done);
+			lookups.run(name, input, result -> {
+                if (!result.error && !result.wikiSources.isEmpty()) { sources.accept(result.wikiSources); }
+                done.accept(result);
+            });
 		}
 		else if (extra != null && AccountContextTools.handles(name))
         {

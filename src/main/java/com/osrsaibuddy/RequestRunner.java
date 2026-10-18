@@ -423,6 +423,9 @@ final class RequestRunner
 				String before = partial.latest();
 				edt.execute(() -> lookingUp(chat, request[0], before));
 			});
+        tools.sources = urls -> edt.execute(() -> {
+            if (current(chat, request[0])) { chat.wikiSources.addAll(WikiAttribution.valid(urls)); }
+        });
 		tools.addTo(conversation);
 		try
 		{
@@ -578,7 +581,8 @@ final class RequestRunner
 				// This reply was built on plain-text history; keep sending the earlier replies that way.
 				ConversationBuilder.forgetRaw(chat);
 			}
-			m = new Chat.Message(Chat.Role.ASSISTANT, reply.text + (reply.cutShort ? "\n\n(The reply was cut short.)" : ""));
+			m = new Chat.Message(Chat.Role.ASSISTANT, reply.text + (reply.cutShort ? "\n\n(The reply was cut short.)" : "")
+                + WikiAttribution.notice(chat.wikiSources));
 			m.who = out.setup.api.displayName();
 			ConversationBuilder.recordReply(m, out.message, reply);
 			if (reply.toolsUnavailable)
@@ -639,7 +643,7 @@ final class RequestRunner
 		{
 			return;
 		}
-		Chat.Message m = new Chat.Message(Chat.Role.ASSISTANT, text);
+		Chat.Message m = new Chat.Message(Chat.Role.ASSISTANT, text + WikiAttribution.notice(chat.wikiSources));
 		m.who = who;
 		m.unfinished = true;
 		chat.messages.add(m);

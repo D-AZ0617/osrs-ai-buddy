@@ -266,3 +266,13 @@ limit, or purchase additional ChatGPT credits if offered in those settings.
 Separate OpenAI API credits do not apply to this plugin. Temporary service
 failures or rate limits do not automatically mean your credits are exhausted.
 For an expired session, use Sign In in Buddy's menu.
+WIKI SOURCES AND CREDITS
+Buddy asks the AI to cite retrieved articles next to the facts they support.
+Buddy also adds its own reference list of retrieved article links, contributor
+history links, and the CC BY-NC-SA 3.0 license. Adapted Wiki portions remain
+under that content license; your private account data and plugin software are
+separate. A retrieved reference does not mean every AI claim is verified.
+Source records survive saving and summarization; Clear removes them with the
+chat content. Older chats are not retroactively assigned guessed sources.
+Wiki results are cached briefly in memory. If the Wiki requests a pause, Buddy
+stops fresh lookups for the requested delay instead of repeatedly retrying.
